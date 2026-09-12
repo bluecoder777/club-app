@@ -1,0 +1,9 @@
+services:
+  hello-servlet-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: hello-servlet-container
+    ports:
+      - "8080:8080"
+
