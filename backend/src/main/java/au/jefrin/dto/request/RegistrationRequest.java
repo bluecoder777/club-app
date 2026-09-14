@@ -1,4 +1,4 @@
-package au.jefrin.model;
+package au.jefrin.dto.request;
 
 public class RegistrationRequest {
     private String name;

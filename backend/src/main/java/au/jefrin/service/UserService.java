@@ -1,6 +1,7 @@
 package au.jefrin.service;
 
-import au.jefrin.model.RegistrationRequest;
+import au.jefrin.dto.request.LoginRequest;
+import au.jefrin.dto.request.RegistrationRequest;
 import au.jefrin.model.User;
 import au.jefrin.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
@@ -25,6 +26,19 @@ public class UserService {
 
         User user = new User(request.getName(), request.getEmail(), hashedPassword);
         userRepository.save(user);
+    }
+
+    public User authenticate(LoginRequest request) throws SQLException, IllegalArgumentException {
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        return user;
     }
 }
 
