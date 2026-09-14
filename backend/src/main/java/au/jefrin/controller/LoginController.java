@@ -2,6 +2,7 @@ package au.jefrin.controller;
 
 import au.jefrin.dto.request.LoginRequest;
 import au.jefrin.dto.response.ApiResponse;
+import au.jefrin.dto.response.LoginResponse;
 import au.jefrin.dto.response.UserResponse;
 import au.jefrin.model.User;
 import au.jefrin.service.UserService;
@@ -46,8 +47,17 @@ public class LoginController extends HttpServlet {
 
             User user = userService.authenticate(request);
 
+            String accessToken = au.jefrin.util.JwtUtil.generateAccessToken(user);
+            String refreshToken = au.jefrin.util.JwtUtil.generateRefreshToken(user);
+            
+            LoginResponse loginResponse = au.jefrin.dto.response.LoginResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .user(UserResponse.fromUser(user))
+                    .build();
+
             resp.setStatus(HttpServletResponse.SC_OK);
-            ApiResponse<UserResponse> response = ApiResponse.success(UserResponse.fromUser(user));
+            ApiResponse<au.jefrin.dto.response.LoginResponse> response = ApiResponse.success(loginResponse);
             objectMapper.writeValue(resp.getWriter(), response);
 
         } catch (IllegalArgumentException e) {

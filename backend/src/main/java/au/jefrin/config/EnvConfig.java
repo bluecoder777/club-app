@@ -42,6 +42,30 @@ public class EnvConfig {
         return pass;
     }
 
+    public static String getJwtAccessSecret() {
+        return getRequired("JWT_ACCESS_SECRET");
+    }
+
+    public static String getJwtRefreshSecret() {
+        return getRequired("JWT_REFRESH_SECRET");
+    }
+
+    public static long getJwtAccessExpiry() {
+        String expiry = get("JWT_ACCESS_EXPIRY");
+        if (expiry == null || expiry.trim().isEmpty()) {
+            return 900000; // Default: 15 minutes in ms
+        }
+        return Long.parseLong(expiry);
+    }
+
+    public static long getJwtRefreshExpiry() {
+        String expiry = get("JWT_REFRESH_EXPIRY");
+        if (expiry == null || expiry.trim().isEmpty()) {
+            return 604800000; // Default: 7 days in ms
+        }
+        return Long.parseLong(expiry);
+    }
+
     private static String getRequired(String key) {
         String value = get(key);
         if (value == null || value.trim().isEmpty()) {
