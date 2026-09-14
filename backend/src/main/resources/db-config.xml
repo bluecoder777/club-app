@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
-    <url>jdbc:postgresql://localhost:5432/club</url>
-    <username>postgres</username>
-    <password>pgpass</password>
+    <url>jdbc:postgresql://db:5432/club</url>
+    <username>clubuser</username>
+    <password>clubpassword</password>
     <!-- HikariCP Pool Settings -->
     <maximumPoolSize>10</maximumPoolSize>
     <minimumIdle>2</minimumIdle>
@@ -10,4 +10,3 @@
     <connectionTimeout>20000</connectionTimeout>
     <maxLifetime>1800000</maxLifetime>
 </database>
-

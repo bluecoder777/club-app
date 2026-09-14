@@ -74,6 +74,13 @@ public class DatabaseConfig {
         return defaultValue;
     }
 
+    public static javax.sql.DataSource getDataSource() {
+        if (dataSource == null) {
+            init();
+        }
+        return dataSource;
+    }
+
     public static Connection getConnection() throws SQLException {
         if (dataSource == null) {
             init(); // Fallback initialization

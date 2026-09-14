@@ -26,6 +26,18 @@
       <version>6.0.0</version>
       <scope>provided</scope>
     </dependency>
+    <!-- Flyway Core for Migrations -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>10.10.0</version>
+    </dependency>
+    <!-- Flyway Database support for PostgreSQL -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <version>10.10.0</version>
+    </dependency>
     <!-- PostgreSQL JDBC Driver -->
     <dependency>
       <groupId>org.postgresql</groupId>
