@@ -26,30 +26,22 @@ public class DatabaseConfig {
                 // Ensure driver is loaded
                 Class.forName("org.postgresql.Driver");
 
-                // Load database config from db-config.xml
-                InputStream xmlStream = DatabaseConfig.class.getClassLoader().getResourceAsStream("db-config.xml");
-                if (xmlStream == null) {
-                    throw new RuntimeException("Could not find db-config.xml in resources");
-                }
-
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder.parse(xmlStream);
-                document.getDocumentElement().normalize();
-
-                Element root = document.getDocumentElement();
+                // Read configuration through the centralized EnvConfig class
+                String dbUrl = EnvConfig.getDbUrl();
+                String dbUser = EnvConfig.getDbUser();
+                String dbPass = EnvConfig.getDbPassword();
 
                 HikariConfig config = new HikariConfig();
-                config.setJdbcUrl(getTagValue("url", root));
-                config.setUsername(getTagValue("username", root));
-                config.setPassword(getTagValue("password", root));
+                config.setJdbcUrl(dbUrl);
+                config.setUsername(dbUser);
+                config.setPassword(dbPass);
 
                 // HikariCP recommended settings for PostgreSQL
-                config.setMaximumPoolSize(Integer.parseInt(getTagValueOrDefault("maximumPoolSize", root, "10")));
-                config.setMinimumIdle(Integer.parseInt(getTagValueOrDefault("minimumIdle", root, "2")));
-                config.setIdleTimeout(Long.parseLong(getTagValueOrDefault("idleTimeout", root, "30000")));
-                config.setConnectionTimeout(Long.parseLong(getTagValueOrDefault("connectionTimeout", root, "20000")));
-                config.setMaxLifetime(Long.parseLong(getTagValueOrDefault("maxLifetime", root, "1800000")));
+                config.setMaximumPoolSize(10);
+                config.setMinimumIdle(2);
+                config.setIdleTimeout(30000);
+                config.setConnectionTimeout(20000);
+                config.setMaxLifetime(1800000);
 
                 dataSource = new HikariDataSource(config);
             } catch (Exception e) {

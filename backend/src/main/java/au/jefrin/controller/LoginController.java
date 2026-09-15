@@ -1,7 +1,10 @@
 package au.jefrin.controller;
 
+import au.jefrin.dto.request.LoginRequest;
 import au.jefrin.dto.response.ApiResponse;
-import au.jefrin.dto.request.RegistrationRequest;
+import au.jefrin.dto.response.LoginResponse;
+import au.jefrin.dto.response.UserResponse;
+import au.jefrin.model.User;
 import au.jefrin.service.UserService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,8 +17,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("/api/v1/register")
-public class RegistrationController extends HttpServlet {
+@WebServlet("/api/v1/login")
+public class LoginController extends HttpServlet {
 
     private UserService userService;
     private ObjectMapper objectMapper;
@@ -33,24 +36,33 @@ public class RegistrationController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         try {
-            RegistrationRequest request = objectMapper.readValue(req.getInputStream(), RegistrationRequest.class);
+            LoginRequest request = objectMapper.readValue(req.getInputStream(), LoginRequest.class);
 
             if (!request.isValid()) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields (name, email, password)");
+                ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields (email, password)");
                 objectMapper.writeValue(resp.getWriter(), response);
                 return;
             }
 
-            userService.registerUser(request);
+            User user = userService.authenticate(request);
 
-            resp.setStatus(HttpServletResponse.SC_CREATED);
-            ApiResponse<String> response = ApiResponse.success("User registered successfully");
+            String accessToken = au.jefrin.util.JwtUtil.generateAccessToken(user);
+            String refreshToken = au.jefrin.util.JwtUtil.generateRefreshToken(user);
+            
+            LoginResponse loginResponse = au.jefrin.dto.response.LoginResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .user(UserResponse.fromUser(user))
+                    .build();
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            ApiResponse<au.jefrin.dto.response.LoginResponse> response = ApiResponse.success(loginResponse);
             objectMapper.writeValue(resp.getWriter(), response);
 
         } catch (IllegalArgumentException e) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict for existing resource
-            ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_CONFLICT, e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized for invalid credentials
+            ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             objectMapper.writeValue(resp.getWriter(), response);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -65,3 +77,4 @@ public class RegistrationController extends HttpServlet {
         }
     }
 }
+
