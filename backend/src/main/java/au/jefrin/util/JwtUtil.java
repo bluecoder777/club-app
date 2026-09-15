@@ -42,5 +42,26 @@ public class JwtUtil {
                 .signWith(getRefreshSigningKey())
                 .compact();
     }
+
+    public static String extractEmailFromRefreshToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getRefreshSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    public static boolean isRefreshTokenValid(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(getRefreshSigningKey())
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
 

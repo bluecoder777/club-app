@@ -18,63 +18,30 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/api/v1/login")
-public class LoginController extends HttpServlet {
+public class LoginController extends BaseController<LoginRequest> {
 
-    private UserService userService;
-    private ObjectMapper objectMapper;
+    private au.jefrin.service.AuthService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.userService = new UserService();
-        this.objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        this.authService = new au.jefrin.service.AuthService();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
+    protected Class<LoginRequest> getRequestClass() {
+        return LoginRequest.class;
+    }
 
-        try {
-            LoginRequest request = objectMapper.readValue(req.getInputStream(), LoginRequest.class);
-
-            if (!request.isValid()) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields (email, password)");
-                objectMapper.writeValue(resp.getWriter(), response);
-                return;
-            }
-
-            User user = userService.authenticate(request);
-
-            String accessToken = au.jefrin.util.JwtUtil.generateAccessToken(user);
-            String refreshToken = au.jefrin.util.JwtUtil.generateRefreshToken(user);
-            
-            LoginResponse loginResponse = au.jefrin.dto.response.LoginResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .user(UserResponse.fromUser(user))
-                    .build();
-
-            resp.setStatus(HttpServletResponse.SC_OK);
-            ApiResponse<au.jefrin.dto.response.LoginResponse> response = ApiResponse.success(loginResponse);
-            objectMapper.writeValue(resp.getWriter(), response);
-
-        } catch (IllegalArgumentException e) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized for invalid credentials
-            ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-            objectMapper.writeValue(resp.getWriter(), response);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error occurred");
-            objectMapper.writeValue(resp.getWriter(), response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            ApiResponse<Void> response = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Invalid request payload");
-            objectMapper.writeValue(resp.getWriter(), response);
+    @Override
+    protected ApiResponse<?> processRequest(LoginRequest request) throws Exception {
+        if (!request.isValid()) {
+            // This throws an exception which BaseController catches and turns into a 400 Bad Request
+            throw new IllegalArgumentException("Missing required fields (email, password)");
         }
+
+        LoginResponse loginResponse = authService.login(request);
+        return ApiResponse.success(loginResponse);
     }
 }
 
