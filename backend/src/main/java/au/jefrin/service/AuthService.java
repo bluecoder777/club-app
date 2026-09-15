@@ -63,6 +63,20 @@ public class AuthService {
         return generateTokensForUser(user);
     }
 
+    public void logout(String refreshToken) throws SQLException {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("Refresh token is required for logout");
+        }
+        
+        // Find the token in the database
+        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken);
+        
+        if (storedToken != null && !storedToken.isRevoked()) {
+            // Revoke the token so it cannot be used to generate new access tokens
+            refreshTokenRepository.revokeToken(refreshToken);
+        }
+    }
+
     private au.jefrin.dto.response.TokenResponse generateTokensForUser(User user) throws SQLException {
         String accessToken = JwtUtil.generateAccessToken(user);
         String refreshTokenString = JwtUtil.generateRefreshToken(user);
