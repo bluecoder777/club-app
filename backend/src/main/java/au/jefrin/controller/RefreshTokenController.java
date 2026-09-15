@@ -3,15 +3,10 @@ package au.jefrin.controller;
 import au.jefrin.dto.request.RefreshTokenRequest;
 import au.jefrin.dto.response.ApiResponse;
 import au.jefrin.service.AuthService;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
 
 @WebServlet("/api/v1/auth/refresh")
 public class RefreshTokenController extends BaseController<RefreshTokenRequest> {
@@ -30,7 +25,7 @@ public class RefreshTokenController extends BaseController<RefreshTokenRequest> 
     }
 
     @Override
-    protected ApiResponse<?> processRequest(RefreshTokenRequest request) throws Exception {
+    protected ApiResponse<?> processRequest(RefreshTokenRequest request, HttpServletRequest httpRequest) throws Exception {
         if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
             throw new IllegalArgumentException("Missing refresh token");
         }

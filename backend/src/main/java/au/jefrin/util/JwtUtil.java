@@ -63,5 +63,26 @@ public class JwtUtil {
             return false;
         }
     }
+
+    public static boolean isAccessTokenValid(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(getAccessSigningKey())
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static Long extractIdFromAccessToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getAccessSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("id", Long.class);
+    }
 }
 

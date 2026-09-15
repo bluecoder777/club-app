@@ -2,17 +2,12 @@ package au.jefrin.controller;
 
 import au.jefrin.dto.response.ApiResponse;
 import au.jefrin.dto.request.RegistrationRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import au.jefrin.service.UserService;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.sql.SQLException;
 
 @WebServlet("/api/v1/register")
 public class RegistrationController extends BaseController<RegistrationRequest> {
@@ -36,7 +31,7 @@ public class RegistrationController extends BaseController<RegistrationRequest> 
     }
 
     @Override
-    protected ApiResponse<?> processRequest(RegistrationRequest request) throws Exception {
+    protected ApiResponse<?> processRequest(RegistrationRequest request, HttpServletRequest httpRequest) throws Exception {
         if (!request.isValid()) {
             throw new IllegalArgumentException("Missing required fields (name, email, password)");
         }

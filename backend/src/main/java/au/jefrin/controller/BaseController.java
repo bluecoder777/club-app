@@ -1,16 +1,16 @@
 package au.jefrin.controller;
 
 import au.jefrin.dto.response.ApiResponse;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.sql.SQLException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+
 
 public abstract class BaseController<T> extends HttpServlet {
 
@@ -26,7 +26,7 @@ public abstract class BaseController<T> extends HttpServlet {
     protected abstract Class<T> getRequestClass();
 
     // The main business logic method that subclasses will implement
-    protected abstract ApiResponse<?> processRequest(T request) throws Exception;
+    protected abstract ApiResponse<?> processRequest(T request, HttpServletRequest httpRequest) throws Exception;
 
     // By default, successful POST requests return 200 OK. Subclasses can override this (e.g. 201 Created).
     protected int getSuccessStatusCode() {
@@ -43,7 +43,7 @@ public abstract class BaseController<T> extends HttpServlet {
             T requestPayload = objectMapper.readValue(req.getInputStream(), getRequestClass());
             
             // 2. Execute Subclass Business Logic
-            ApiResponse<?> response = processRequest(requestPayload);
+            ApiResponse<?> response = processRequest(requestPayload, req);
             
             // 3. Return Success
             resp.setStatus(getSuccessStatusCode());
