@@ -1,6 +1,7 @@
 package au.jefrin.controller;
 
 import au.jefrin.dto.request.LogoutRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import au.jefrin.dto.response.ApiResponse;
 import au.jefrin.service.AuthService;
 import jakarta.servlet.ServletException;
@@ -23,7 +24,7 @@ public class LogoutController extends BaseController<LogoutRequest> {
     }
 
     @Override
-    protected ApiResponse<?> processRequest(LogoutRequest request) throws Exception {
+    protected ApiResponse<?> processRequest(LogoutRequest request, HttpServletRequest httpRequest) throws Exception {
         if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
             throw new IllegalArgumentException("Missing refresh token");
         }
