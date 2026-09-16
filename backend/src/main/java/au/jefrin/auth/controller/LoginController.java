@@ -1,4 +1,6 @@
 package au.jefrin.auth.controller;
+
+import au.jefrin.auth.service.AuthService;
 import au.jefrin.common.controller.BaseController;
 
 import au.jefrin.auth.dto.LoginRequest;
@@ -21,12 +23,12 @@ import java.sql.SQLException;
 @WebServlet("/api/v1/login")
 public class LoginController extends BaseController<LoginRequest> {
 
-    private au.jefrin.auth.service.AuthService authService;
+    private AuthService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.authService = new au.jefrin.auth.service.AuthService();
+        this.authService = new AuthService();
     }
 
     @Override

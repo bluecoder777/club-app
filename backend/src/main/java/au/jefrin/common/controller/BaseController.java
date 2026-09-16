@@ -1,5 +1,8 @@
 package au.jefrin.common.controller;
 
+import au.jefrin.common.exception.ConflictException;
+import au.jefrin.common.exception.UnauthorizedException;
+
 import au.jefrin.common.dto.ApiResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,12 +56,12 @@ public abstract class BaseController<T> extends HttpServlet {
             resp.setStatus(getSuccessStatusCode());
             objectMapper.writeValue(resp.getWriter(), response);
 
-        } catch (au.jefrin.common.exception.UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             objectMapper.writeValue(resp.getWriter(), errorResponse);
             
-        } catch (au.jefrin.common.exception.ConflictException e) {
+        } catch (ConflictException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_CONFLICT, e.getMessage());
             objectMapper.writeValue(resp.getWriter(), errorResponse);

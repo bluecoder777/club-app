@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class UserRepository {
 
@@ -22,8 +23,8 @@ public class UserRepository {
         }
     }
 
-    public void save(User user) throws SQLException {
-        String query = "INSERT INTO \"user\" (name, email, password) VALUES (?, ?, ?)";
+    public User save(User user) throws SQLException {
+        String query = "INSERT INTO \"user\" (name, email, password) VALUES (?, ?, ?) RETURNING id";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
@@ -31,7 +32,12 @@ public class UserRepository {
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPassword());
             
-            stmt.executeUpdate();
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    user.setId(rs.getLong("id"));
+                }
+            }
+            return user;
         }
     }
 
@@ -55,4 +61,3 @@ public class UserRepository {
         return null;
     }
 }
-

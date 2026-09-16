@@ -18,7 +18,7 @@ public class UserService {
         this.userRepository = new UserRepository();
     }
 
-    public void registerUser(RegistrationRequest request) throws SQLException {
+    public User registerUser(RegistrationRequest request) throws SQLException {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email is already registered");
         }
@@ -27,7 +27,7 @@ public class UserService {
         String hashedPassword = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt(12));
 
         User user = new User(request.getName(), request.getEmail(), hashedPassword);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public User authenticate(LoginRequest request) throws SQLException {
@@ -43,4 +43,3 @@ public class UserService {
         return user;
     }
 }
-

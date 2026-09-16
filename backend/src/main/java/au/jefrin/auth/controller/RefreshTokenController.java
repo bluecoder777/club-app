@@ -1,4 +1,6 @@
 package au.jefrin.auth.controller;
+
+import au.jefrin.auth.dto.TokenResponse;
 import au.jefrin.common.controller.BaseController;
 
 import au.jefrin.auth.dto.RefreshTokenRequest;
@@ -36,7 +38,7 @@ public class RefreshTokenController extends BaseController<RefreshTokenRequest> 
             throw new IllegalArgumentException("Missing refresh token");
         }
 
-        au.jefrin.auth.dto.TokenResponse tokenResponse = authService.refreshTokens(request.getRefreshToken());
+        TokenResponse tokenResponse = authService.refreshTokens(request.getRefreshToken());
         return ApiResponse.success(tokenResponse);
     }
 }

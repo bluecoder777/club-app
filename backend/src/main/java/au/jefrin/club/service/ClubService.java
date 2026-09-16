@@ -1,5 +1,11 @@
 package au.jefrin.club.service;
 
+import au.jefrin.club.dto.EditClubRequest;
+import au.jefrin.club.dto.LeaveClubRequest;
+import au.jefrin.common.exception.UnauthorizedException;
+import au.jefrin.club.dto.UpdateMemberRoleRequest;
+import au.jefrin.club.dto.RemoveMemberRequest;
+
 import au.jefrin.club.dto.CreateClubRequest;
 import au.jefrin.club.dto.JoinClubRequest;
 import au.jefrin.common.exception.ConflictException;
@@ -66,11 +72,11 @@ public class ClubService {
     private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
         Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
         if (requester == null || requester.getRole() != Role.ADMIN) {
-            throw new au.jefrin.common.exception.UnauthorizedException("Only club admins can perform this action.");
+            throw new UnauthorizedException("Only club admins can perform this action.");
         }
     }
 
-    public Club editClub(au.jefrin.club.dto.EditClubRequest request, Long requesterUserId) throws SQLException {
+    public Club editClub(EditClubRequest request, Long requesterUserId) throws SQLException {
         if (request.getClubId() == null || request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club ID and valid name are required");
         }
@@ -88,7 +94,7 @@ public class ClubService {
         return club;
     }
 
-    public void updateMemberRole(au.jefrin.club.dto.UpdateMemberRoleRequest request, Long requesterUserId) throws SQLException {
+    public void updateMemberRole(UpdateMemberRoleRequest request, Long requesterUserId) throws SQLException {
         if (request.getClubId() == null || request.getTargetUserId() == null || request.getRole() == null) {
             throw new IllegalArgumentException("Club ID, Target User ID, and Role are required");
         }
@@ -106,7 +112,7 @@ public class ClubService {
         memberRepository.updateRole(request.getTargetUserId(), request.getClubId(), request.getRole());
     }
 
-    public void removeMember(au.jefrin.club.dto.RemoveMemberRequest request, Long requesterUserId) throws SQLException {
+    public void removeMember(RemoveMemberRequest request, Long requesterUserId) throws SQLException {
         if (request.getClubId() == null || request.getTargetUserId() == null) {
             throw new IllegalArgumentException("Club ID and Target User ID are required");
         }
@@ -125,7 +131,7 @@ public class ClubService {
     }
 
 
-    public void leaveClub(au.jefrin.club.dto.LeaveClubRequest request, Long requesterUserId) throws SQLException {
+    public void leaveClub(LeaveClubRequest request, Long requesterUserId) throws SQLException {
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
         }

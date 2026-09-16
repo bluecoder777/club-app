@@ -1,5 +1,7 @@
 package au.jefrin.club.repository;
 
+import au.jefrin.club.model.Role;
+
 import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.club.model.Member;
 
@@ -61,7 +63,7 @@ public class MemberRepository {
         return null;
     }
 
-    public void updateRole(Long userId, Long clubId, au.jefrin.club.model.Role role) throws SQLException {
+    public void updateRole(Long userId, Long clubId, Role role) throws SQLException {
         String query = "UPDATE member SET role = ?::member_role WHERE user_id = ? AND club_id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
