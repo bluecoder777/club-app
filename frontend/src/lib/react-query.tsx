@@ -1,4 +1,5 @@
 import type { UseMutationOptions, DefaultOptions } from '@tanstack/react-query';
+import type { ApiError } from '@/types/api';
 
 export const queryConfig = {
   queries: {
@@ -21,6 +22,6 @@ export type MutationConfig<
   MutationFnType extends (...args: any) => Promise<any>,
 > = UseMutationOptions<
   ApiFnReturnType<MutationFnType>,
-  Error,
+  ApiError,
   Parameters<MutationFnType>[0]
 >;

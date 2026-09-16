@@ -12,7 +12,7 @@ export const NotFound = () => {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-6">
       <div className="flex max-w-md flex-col items-center text-center">
-        <span className="text-8xl font-black tracking-[-0.06em] text-foreground/10">
+        <span className="text-foreground/10 text-8xl font-black tracking-[-0.06em]">
           404
         </span>
 
@@ -20,7 +20,7 @@ export const NotFound = () => {
           This page doesn’t exist
         </h1>
 
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        <p className="text-muted-foreground mt-3 text-sm leading-6">
           The page may have been moved, deleted, or the URL might be incorrect.
         </p>
 
