@@ -3,4 +3,14 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
+  auth: {
+    login: {
+      path: '/auth/login',
+      getHref: () => '/auth/login',
+    },
+    register: {
+      path: '/auth/register',
+      getHref: () => '/auth/register',
+    },
+  },
 };

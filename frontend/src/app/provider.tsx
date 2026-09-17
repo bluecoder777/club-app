@@ -1,9 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { CookiesProvider } from 'react-cookie';
+import { Toaster } from '@/components/ui/toast';
 
 import { MainErrorFallback } from '@/components/errors/main';
 import { Spinner } from '@/components/ui/spinner';
+import { AuthProvider } from '@/features/auth/components/auth-provider';
 import { queryConfig } from '@/lib/react-query';
 
 type AppProviderProps = {
@@ -27,9 +30,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       }
     >
       <ErrorBoundary FallbackComponent={MainErrorFallback}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <CookiesProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>{children}</AuthProvider>
+            <Toaster />
+          </QueryClientProvider>
+        </CookiesProvider>
       </ErrorBoundary>
     </React.Suspense>
   );
