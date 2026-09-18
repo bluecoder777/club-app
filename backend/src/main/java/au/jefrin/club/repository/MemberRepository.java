@@ -6,6 +6,9 @@ import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.club.model.Member;
 
 import java.sql.*;
+import java.util.List;
+import java.util.ArrayList;
+import au.jefrin.club.dto.ClubMemberResponse;
 
 public class MemberRepository {
 
@@ -54,13 +57,39 @@ public class MemberRepository {
                     m.setId(rs.getLong("id"));
                     m.setUserId(rs.getLong("user_id"));
                     m.setClubId(rs.getLong("club_id"));
-                    m.setRole(au.jefrin.club.model.Role.valueOf(rs.getString("role")));
+                    m.setRole(Role.valueOf(rs.getString("role")));
                     m.setJoinedAt(rs.getTimestamp("joined_at"));
                     return m;
                 }
             }
         }
         return null;
+    }
+
+    public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) throws SQLException {
+        String query = "SELECT m.id, m.user_id, u.name, u.email, m.role, m.joined_at " +
+                       "FROM member m JOIN \"user\" u ON m.user_id = u.id " +
+                       "WHERE m.club_id = ? " +
+                       "ORDER BY m.joined_at ASC";
+        
+        List<ClubMemberResponse> members = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, clubId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    members.add(ClubMemberResponse.builder()
+                            .id(rs.getLong("id"))
+                            .userId(rs.getLong("user_id"))
+                            .name(rs.getString("name"))
+                            .email(rs.getString("email"))
+                            .role(Role.valueOf(rs.getString("role")))
+                            .joinedAt(rs.getTimestamp("joined_at"))
+                            .build());
+                }
+            }
+        }
+        return members;
     }
 
     public void updateRole(Long userId, Long clubId, Role role) throws SQLException {

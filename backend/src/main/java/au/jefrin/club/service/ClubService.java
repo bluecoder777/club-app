@@ -16,6 +16,8 @@ import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.MemberRepository;
 
 import java.sql.SQLException;
+import java.util.List;
+import au.jefrin.club.dto.ClubMemberResponse;
 
 public class ClubService {
     private final ClubRepository clubRepository;
@@ -144,5 +146,23 @@ public class ClubService {
         // Optional logic: Prevent the only ADMIN from leaving without transferring ownership
         // For simplicity, we just allow leaving.
         memberRepository.deleteByUserAndClub(requesterUserId, request.getClubId());
+    }
+
+    public List<ClubMemberResponse> getClubMembers(Long clubId, Long requesterUserId) throws SQLException {
+        if (clubId == null) {
+            throw new IllegalArgumentException("Club ID is required");
+        }
+        
+        Club club = clubRepository.findById(clubId);
+        if (club == null) {
+            throw new IllegalArgumentException("Club not found");
+        }
+        
+        Member membership = memberRepository.findByUserAndClub(requesterUserId, clubId);
+        if (membership == null) {
+            throw new UnauthorizedException("You must be a member of the club to view its members");
+        }
+        
+        return memberRepository.findAllMembersByClubId(clubId);
     }
 }
