@@ -64,8 +64,6 @@ public class JwtUtil {
         }
     }
 
-
-
     public static Long extractIdFromAccessToken(String token) {
         return Jwts.parser()
                 .verifyWith(getAccessSigningKey())

@@ -1,8 +1,9 @@
-import { createBrowserRouter, type RouteObject } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 
-import { paths } from '@/config/paths';
 import { MainErrorFallback } from '@/components/errors/main';
+import { paths } from '@/config/paths';
+import { AppLayout } from './layout';
 
 const lazyLoad = <T extends Record<string, unknown>>(
   loader: () => Promise<T>,
@@ -15,8 +16,19 @@ const lazyLoad = <T extends Record<string, unknown>>(
 const createAppRouter = () =>
   createBrowserRouter([
     {
+      path: paths.auth.login.path,
+      lazy: () =>
+        lazyLoad(() => import('../features/auth/routes/login'), 'Login'),
+    },
+    {
+      path: paths.auth.register.path,
+      lazy: () =>
+        lazyLoad(() => import('../features/auth/routes/register'), 'Register'),
+    },
+    {
       path: paths.root.path,
       ErrorBoundary: MainErrorFallback,
+      Component: AppLayout,
       children: [
         {
           index: true,

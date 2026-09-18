@@ -7,13 +7,13 @@ export const MainErrorFallback = () => {
       role="alert"
     >
       <div className="flex max-w-md flex-col items-center text-center">
-        <span className="text-8xl font-black tracking-[-0.06em] text-foreground/10">
+        <span className="text-foreground/10 text-8xl font-black tracking-[-0.06em]">
           500
         </span>
         <h1 className="mt-6 text-2xl font-semibold tracking-tight">
           Something went wrong
         </h1>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        <p className="text-muted-foreground mt-3 text-sm leading-6">
           We couldn’t load this page. Please refresh and try again.
         </p>
         <Button
