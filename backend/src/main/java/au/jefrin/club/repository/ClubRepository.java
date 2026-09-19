@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.user.dto.UserResponse;
+import au.jefrin.club.model.Role;
 
 public class ClubRepository {
 
@@ -96,6 +97,9 @@ public class ClubRepository {
                 .email(rs.getString("created_by_email"))
                 .build();
                 
+        String roleStr = rs.getString("current_user_role");
+        Role role = roleStr != null ? Role.valueOf(roleStr) : null;
+                
         return ClubResponse.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
@@ -104,6 +108,7 @@ public class ClubRepository {
                 .createdBy(createdBy)
                 .memberCount(rs.getInt("member_count"))
                 .isMember(rs.getBoolean("is_member"))
+                .currentUserRole(role)
                 .build();
     }
 
@@ -111,7 +116,8 @@ public class ClubRepository {
         String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
                        "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
                        "COUNT(m.id) as member_count, " +
-                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member " +
+                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
+                       "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
                        "FROM clubs c " +
                        "JOIN \"user\" cb ON c.created_by = cb.id " +
                        "LEFT JOIN member m ON c.id = m.club_id " +
@@ -120,7 +126,8 @@ public class ClubRepository {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setLong(1, currentUserId);
-            stmt.setLong(2, id);
+            stmt.setLong(2, currentUserId);
+            stmt.setLong(3, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return buildResponseFromResultSet(rs);
@@ -134,7 +141,8 @@ public class ClubRepository {
         String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
                        "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
                        "COUNT(m.id) as member_count, " +
-                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member " +
+                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
+                       "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
                        "FROM clubs c " +
                        "JOIN \"user\" cb ON c.created_by = cb.id " +
                        "LEFT JOIN member m ON c.id = m.club_id " +
@@ -143,6 +151,7 @@ public class ClubRepository {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setLong(1, currentUserId);
+            stmt.setLong(2, currentUserId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     responses.add(buildResponseFromResultSet(rs));
