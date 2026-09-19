@@ -8,6 +8,7 @@ import au.jefrin.club.dto.RemoveMemberRequest;
 
 import au.jefrin.club.dto.CreateClubRequest;
 import au.jefrin.club.dto.JoinClubRequest;
+import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.common.exception.ConflictException;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.Member;
@@ -28,7 +29,7 @@ public class ClubService {
         this.memberRepository = new MemberRepository();
     }
 
-    public Club createClub(CreateClubRequest request, Long userId) throws SQLException {
+    public ClubResponse createClub(CreateClubRequest request, Long userId) throws SQLException {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
         }
@@ -45,8 +46,9 @@ public class ClubService {
         member.setClubId(savedClub.getId());
         member.setRole(Role.ADMIN);
         memberRepository.save(member);
-
-        return savedClub;
+        
+        // Return the club fully loaded from the database (including calculated memberCount and UserResponse)
+        return clubRepository.findClubResponseById(savedClub.getId());
     }
 
     public void joinClub(Long clubId, Long userId) throws SQLException {
@@ -78,7 +80,7 @@ public class ClubService {
         }
     }
 
-    public Club editClub(EditClubRequest request, Long requesterUserId) throws SQLException {
+    public ClubResponse editClub(EditClubRequest request, Long requesterUserId) throws SQLException {
         if (request.getClubId() == null || request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club ID and valid name are required");
         }
@@ -93,7 +95,7 @@ public class ClubService {
         club.setDescription(request.getDescription());
         clubRepository.update(club);
         
-        return club;
+        return clubRepository.findClubResponseById(request.getClubId());
     }
 
     public void updateMemberRole(UpdateMemberRoleRequest request, Long requesterUserId) throws SQLException {
@@ -164,5 +166,9 @@ public class ClubService {
         }
         
         return memberRepository.findAllMembersByClubId(clubId);
+    }
+
+    public List<ClubResponse> getAllClubs() throws SQLException {
+        return clubRepository.findAllClubResponses();
     }
 }
