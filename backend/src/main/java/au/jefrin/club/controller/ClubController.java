@@ -11,7 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@WebServlet("/api/v1/clubs")
+@WebServlet(urlPatterns = {"/api/v1/clubs", "/api/v1/clubs/*"})
 public class ClubController extends AuthenticatedController<CreateClubRequest> {
 
     private ClubService clubService;
@@ -30,8 +30,21 @@ public class ClubController extends AuthenticatedController<CreateClubRequest> {
     @Override
     protected ApiResponse<?> processAuthenticatedRequest(CreateClubRequest request, HttpServletRequest req, Long userId) throws Exception {
         if ("GET".equalsIgnoreCase(req.getMethod())) {
-            List<ClubResponse> clubs = clubService.getAllClubs(userId);
-            return ApiResponse.success(clubs);
+            String pathInfo = req.getPathInfo();
+            if (pathInfo == null || pathInfo.equals("/")) {
+                List<ClubResponse> clubs = clubService.getAllClubs(userId);
+                return ApiResponse.success(clubs);
+            } else {
+                // e.g. pathInfo = "/123"
+                String idPart = pathInfo.substring(1); // remove leading slash
+                try {
+                    Long clubId = Long.parseLong(idPart);
+                    ClubResponse club = clubService.getClub(clubId, userId);
+                    return ApiResponse.success(club);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid club ID format");
+                }
+            }
         } else if ("POST".equalsIgnoreCase(req.getMethod())) {
             ClubResponse club = clubService.createClub(request, userId);
             return ApiResponse.success(club);

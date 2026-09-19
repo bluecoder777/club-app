@@ -171,4 +171,15 @@ public class ClubService {
     public List<ClubResponse> getAllClubs(Long userId) throws SQLException {
         return clubRepository.findAllClubResponses(userId);
     }
+
+    public ClubResponse getClub(Long clubId, Long userId) throws SQLException {
+        if (clubId == null) {
+            throw new IllegalArgumentException("Club ID is required");
+        }
+        ClubResponse club = clubRepository.findClubResponseById(clubId, userId);
+        if (club == null) {
+            throw new IllegalArgumentException("Club not found");
+        }
+        return club;
+    }
 }
