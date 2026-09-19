@@ -8,6 +8,7 @@ public class Club {
     private String description;
     private Timestamp dateOfCreation;
     private Long createdBy;
+    private int memberCount;
 
     public Club() {}
 
@@ -25,4 +26,7 @@ public class Club {
     
     public Long getCreatedBy() { return createdBy; }
     public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
+
+    public int getMemberCount() { return memberCount; }
+    public void setMemberCount(int memberCount) { this.memberCount = memberCount; }
 }

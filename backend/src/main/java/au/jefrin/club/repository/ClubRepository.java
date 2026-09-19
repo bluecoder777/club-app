@@ -4,6 +4,10 @@ import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.club.model.Club;
 
 import java.sql.*;
+import java.util.List;
+import java.util.ArrayList;
+import au.jefrin.club.dto.ClubResponse;
+import au.jefrin.user.dto.UserResponse;
 
 public class ClubRepository {
 
@@ -28,7 +32,9 @@ public class ClubRepository {
     }
 
     public Club findById(Long id) throws SQLException {
-        String query = "SELECT id, name, description, date_of_creation, created_by FROM clubs WHERE id = ?";
+        String query = "SELECT c.id, c.name, c.description, c.date_of_creation, c.created_by, COUNT(m.id) as member_count " +
+                       "FROM clubs c LEFT JOIN member m ON c.id = m.club_id " +
+                       "WHERE c.id = ? GROUP BY c.id";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
@@ -41,6 +47,7 @@ public class ClubRepository {
                     club.setDescription(rs.getString("description"));
                     club.setDateOfCreation(rs.getTimestamp("date_of_creation"));
                     club.setCreatedBy(rs.getLong("created_by"));
+                    club.setMemberCount(rs.getInt("member_count"));
                     return club;
                 }
             }
@@ -58,5 +65,84 @@ public class ClubRepository {
             stmt.setLong(3, club.getId());
             stmt.executeUpdate();
         }
+    }
+
+    public List<Club> findAll() throws SQLException {
+        String query = "SELECT c.id, c.name, c.description, c.date_of_creation, c.created_by, COUNT(m.id) as member_count " +
+                       "FROM clubs c LEFT JOIN member m ON c.id = m.club_id " +
+                       "GROUP BY c.id ORDER BY c.date_of_creation DESC";
+        List<Club> clubs = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Club club = new Club();
+                club.setId(rs.getLong("id"));
+                club.setName(rs.getString("name"));
+                club.setDescription(rs.getString("description"));
+                club.setDateOfCreation(rs.getTimestamp("date_of_creation"));
+                club.setCreatedBy(rs.getLong("created_by"));
+                club.setMemberCount(rs.getInt("member_count"));
+                clubs.add(club);
+            }
+        }
+        return clubs;
+    }
+
+    private ClubResponse buildResponseFromResultSet(ResultSet rs) throws SQLException {
+        UserResponse createdBy = UserResponse.builder()
+                .id(rs.getLong("created_by_id"))
+                .name(rs.getString("created_by_name"))
+                .email(rs.getString("created_by_email"))
+                .build();
+                
+        return ClubResponse.builder()
+                .id(rs.getLong("id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .dateOfCreation(rs.getTimestamp("date_of_creation"))
+                .createdBy(createdBy)
+                .memberCount(rs.getInt("member_count"))
+                .build();
+    }
+
+    public ClubResponse findClubResponseById(Long id) throws SQLException {
+        String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
+                       "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                       "COUNT(m.id) as member_count " +
+                       "FROM clubs c " +
+                       "JOIN \"user\" cb ON c.created_by = cb.id " +
+                       "LEFT JOIN member m ON c.id = m.club_id " +
+                       "WHERE c.id = ? GROUP BY c.id, cb.id";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return buildResponseFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<ClubResponse> findAllClubResponses() throws SQLException {
+        String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
+                       "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                       "COUNT(m.id) as member_count " +
+                       "FROM clubs c " +
+                       "JOIN \"user\" cb ON c.created_by = cb.id " +
+                       "LEFT JOIN member m ON c.id = m.club_id " +
+                       "GROUP BY c.id, cb.id ORDER BY c.date_of_creation DESC";
+        List<ClubResponse> responses = new ArrayList<>();
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                responses.add(buildResponseFromResultSet(rs));
+            }
+        }
+        return responses;
     }
 }

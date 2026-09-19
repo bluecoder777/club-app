@@ -100,7 +100,7 @@ public class AuthService {
 
         refreshTokenRepository.save(refreshToken);
 
-        return au.jefrin.auth.dto.TokenResponse.builder()
+        return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshTokenString)
                 .build();

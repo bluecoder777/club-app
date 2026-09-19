@@ -3,6 +3,7 @@ package au.jefrin.club.controller;
 import au.jefrin.club.dto.EditClubRequest;
 import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.club.model.Club;
+import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.common.controller.AuthenticatedController;
 import jakarta.servlet.ServletException;
@@ -27,7 +28,7 @@ public class EditClubController extends AuthenticatedController<EditClubRequest>
 
     @Override
     protected ApiResponse<?> processAuthenticatedRequest(EditClubRequest request, HttpServletRequest req, Long userId) throws Exception {
-        Club club = clubService.editClub(request, userId);
+        ClubResponse club = clubService.editClub(request, userId);
         return ApiResponse.success(club);
     }
 }
