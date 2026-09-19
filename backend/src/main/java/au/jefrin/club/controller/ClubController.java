@@ -30,7 +30,7 @@ public class ClubController extends AuthenticatedController<CreateClubRequest> {
     @Override
     protected ApiResponse<?> processAuthenticatedRequest(CreateClubRequest request, HttpServletRequest req, Long userId) throws Exception {
         if ("GET".equalsIgnoreCase(req.getMethod())) {
-            List<ClubResponse> clubs = clubService.getAllClubs();
+            List<ClubResponse> clubs = clubService.getAllClubs(userId);
             return ApiResponse.success(clubs);
         } else if ("POST".equalsIgnoreCase(req.getMethod())) {
             ClubResponse club = clubService.createClub(request, userId);
