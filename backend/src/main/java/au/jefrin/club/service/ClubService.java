@@ -48,7 +48,7 @@ public class ClubService {
         memberRepository.save(member);
         
         // Return the club fully loaded from the database (including calculated memberCount and UserResponse)
-        return clubRepository.findClubResponseById(savedClub.getId());
+        return clubRepository.findClubResponseById(savedClub.getId(), userId);
     }
 
     public void joinClub(Long clubId, Long userId) throws SQLException {
@@ -95,7 +95,7 @@ public class ClubService {
         club.setDescription(request.getDescription());
         clubRepository.update(club);
         
-        return clubRepository.findClubResponseById(request.getClubId());
+        return clubRepository.findClubResponseById(request.getClubId(), requesterUserId);
     }
 
     public void updateMemberRole(UpdateMemberRoleRequest request, Long requesterUserId) throws SQLException {
@@ -168,7 +168,7 @@ public class ClubService {
         return memberRepository.findAllMembersByClubId(clubId);
     }
 
-    public List<ClubResponse> getAllClubs() throws SQLException {
-        return clubRepository.findAllClubResponses();
+    public List<ClubResponse> getAllClubs(Long userId) throws SQLException {
+        return clubRepository.findAllClubResponses(userId);
     }
 }

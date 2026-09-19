@@ -103,13 +103,15 @@ public class ClubRepository {
                 .dateOfCreation(rs.getTimestamp("date_of_creation"))
                 .createdBy(createdBy)
                 .memberCount(rs.getInt("member_count"))
+                .isMember(rs.getBoolean("is_member"))
                 .build();
     }
 
-    public ClubResponse findClubResponseById(Long id) throws SQLException {
+    public ClubResponse findClubResponseById(Long id, Long currentUserId) throws SQLException {
         String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
                        "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                       "COUNT(m.id) as member_count " +
+                       "COUNT(m.id) as member_count, " +
+                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member " +
                        "FROM clubs c " +
                        "JOIN \"user\" cb ON c.created_by = cb.id " +
                        "LEFT JOIN member m ON c.id = m.club_id " +
@@ -117,7 +119,8 @@ public class ClubRepository {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             
-            stmt.setLong(1, id);
+            stmt.setLong(1, currentUserId);
+            stmt.setLong(2, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return buildResponseFromResultSet(rs);
@@ -127,20 +130,23 @@ public class ClubRepository {
         return null;
     }
 
-    public List<ClubResponse> findAllClubResponses() throws SQLException {
+    public List<ClubResponse> findAllClubResponses(Long currentUserId) throws SQLException {
         String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
                        "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                       "COUNT(m.id) as member_count " +
+                       "COUNT(m.id) as member_count, " +
+                       "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member " +
                        "FROM clubs c " +
                        "JOIN \"user\" cb ON c.created_by = cb.id " +
                        "LEFT JOIN member m ON c.id = m.club_id " +
                        "GROUP BY c.id, cb.id ORDER BY c.date_of_creation DESC";
         List<ClubResponse> responses = new ArrayList<>();
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                responses.add(buildResponseFromResultSet(rs));
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, currentUserId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    responses.add(buildResponseFromResultSet(rs));
+                }
             }
         }
         return responses;
