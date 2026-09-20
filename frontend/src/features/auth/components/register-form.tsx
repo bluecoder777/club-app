@@ -52,7 +52,7 @@ export const RegisterForm = () => {
           label="Name"
           type="text"
           placeholder="Enter your name"
-          className="h-11 rounded-[10px] border-zinc-800 bg-zinc-900 pr-10 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
+          className="h-11"
         />
         <InputFormField
           control={form.control}
@@ -60,20 +60,16 @@ export const RegisterForm = () => {
           label="Email"
           type="email"
           placeholder="Enter your email"
-          className="h-11 rounded-[10px] border-zinc-800 bg-zinc-900 pr-10 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
+          className="h-11"
         />
         <PasswordFormField
           control={form.control}
           name="password"
           label="Password"
           placeholder="Enter your password"
-          className="h-11 rounded-[10px] border-zinc-800 bg-zinc-900 pr-10 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:ring-offset-0"
+          className="h-11"
         />
-        <Button
-          type="submit"
-          className="h-11 w-full rounded-[10px] bg-zinc-100 text-sm font-semibold text-zinc-950 hover:bg-zinc-100/90"
-          disabled={isPending}
-        >
+        <Button type="submit" className="h-11 w-full" disabled={isPending}>
           {isPending ? 'Creating account…' : 'Register'}
         </Button>
       </FieldGroup>

@@ -5,6 +5,7 @@ import { api, configureApiAuth, refreshAccessToken } from '@/lib/api-client';
 import { AUTH_ENDPOINTS } from '../config/endpoints';
 
 import type { AuthData, AuthResponse, AuthUser } from '../types';
+import { useQueryClient } from '@tanstack/react-query';
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken';
 const USER_STORAGE_KEY = 'user';
@@ -41,7 +42,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const [cookies, setCookie, removeCookie] = useCookies([REFRESH_TOKEN_COOKIE]);
 
-  // Keep refs so interceptors always see the latest values without stale closures
+  const queryClient = useQueryClient();
+
   const tokenRef = React.useRef<string | null>(null);
   const refreshTokenRef = React.useRef<string | null>(
     cookies[REFRESH_TOKEN_COOKIE] ?? null,
@@ -56,7 +58,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     (token: string | null) => {
       refreshTokenRef.current = token;
       if (token) {
-        // Persist for 30 days; SameSite=Strict prevents CSRF
         setCookie(REFRESH_TOKEN_COOKIE, token, {
           path: '/',
           maxAge: 30 * 24 * 60 * 60,
@@ -69,7 +70,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [setCookie, removeCookie],
   );
 
-  /** Syncs user to both React state and localStorage. */
   const persistUser = React.useCallback((u: AuthUser | null) => {
     if (u) {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(u));
@@ -94,15 +94,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         { skipAuth: true },
       );
     } finally {
+      queryClient.clear();
       clearSession();
     }
   }, [clearSession]);
 
   React.useEffect(() => {
-    // Sync ref with the latest cookie value on mount
     refreshTokenRef.current = cookies[REFRESH_TOKEN_COOKIE] ?? null;
 
-    // Restore user from localStorage so UI has profile info immediately on reload
     const stored = localStorage.getItem(USER_STORAGE_KEY);
     if (stored) {
       try {
@@ -121,13 +120,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       onUnauthorized: clearSession,
     });
 
-    // Attempt to restore the session using the persisted refresh token cookie
     void refreshAccessToken()
       .then((accessToken) => {
         setToken(accessToken);
       })
       .catch(() => {
-        // Refresh failed — clear any stale user data
         persistUser(null);
       })
       .finally(() => {
@@ -144,6 +141,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setToken(data.accessToken);
       setRefreshToken(data.refreshToken);
       persistUser(data.user);
+      queryClient.clear();
     },
     [setToken, setRefreshToken, persistUser],
   );
@@ -152,7 +150,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     () => ({
       accessToken,
       user,
-      isAuthenticated: Boolean(accessToken),
+      isAuthenticated: Boolean(accessToken && user),
       isInitializing,
       login,
       logout,

@@ -4,6 +4,15 @@ import { RouterProvider } from 'react-router/dom';
 import { MainErrorFallback } from '@/components/errors/main';
 import { paths } from '@/config/paths';
 import { AppLayout } from './layout';
+import { RequireAuth } from '@/features/auth/components/require-auth';
+
+const ProtectedAppLayout = () => {
+  return (
+    <RequireAuth>
+      <AppLayout />
+    </RequireAuth>
+  );
+};
 
 const lazyLoad = <T extends Record<string, unknown>>(
   loader: () => Promise<T>,
@@ -28,11 +37,20 @@ const createAppRouter = () =>
     {
       path: paths.root.path,
       ErrorBoundary: MainErrorFallback,
-      Component: AppLayout,
+      Component: ProtectedAppLayout,
       children: [
         {
           index: true,
-          lazy: () => lazyLoad(() => import('../features/route/home'), 'Home'),
+          lazy: () =>
+            lazyLoad(
+              () => import('../features/clubs/routes/clubs'),
+              'ClubsRoute',
+            ),
+        },
+        {
+          path: paths.club.path,
+          lazy: () =>
+            lazyLoad(() => import('../features/clubs/routes/club'), 'Club'),
         },
       ],
     },
