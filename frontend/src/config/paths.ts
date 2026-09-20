@@ -13,4 +13,12 @@ export const paths = {
       getHref: () => '/auth/register',
     },
   },
+  clubs: {
+    path: '/',
+    getHref: () => '/',
+  },
+  club: {
+    path: '/clubs/:id',
+    getHref: (id: string) => `/clubs/${id}`,
+  },
 };

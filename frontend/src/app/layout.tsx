@@ -1,28 +1,21 @@
 import { Outlet } from 'react-router';
 
-import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AppHeader } from '@/components/app-header';
 
 export function AppLayout() {
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 12)',
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <Outlet />
-            </div>
-          </div>
+    <main className="bg-secondary min-h-screen">
+      <header className="w-full border-b bg-white">
+        <div className="mx-auto w-full max-w-7xl px-4">
+          <AppHeader />
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </header>
+
+      <section className="w-full">
+        <div className="mx-auto w-full max-w-7xl px-4 py-6">
+          <Outlet />
+        </div>
+      </section>
+    </main>
   );
 }
