@@ -7,7 +7,6 @@ import au.jefrin.club.dto.UpdateMemberRoleRequest;
 import au.jefrin.club.dto.RemoveMemberRequest;
 
 import au.jefrin.club.dto.CreateClubRequest;
-import au.jefrin.club.dto.JoinClubRequest;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.common.exception.ConflictException;
 import au.jefrin.club.model.Club;
@@ -18,15 +17,16 @@ import au.jefrin.club.repository.MemberRepository;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import au.jefrin.club.dto.ClubMemberResponse;
 
 public class ClubService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
 
-    public ClubService() {
-        this.clubRepository = new ClubRepository();
-        this.memberRepository = new MemberRepository();
+    public ClubService(ClubRepository clubRepository, MemberRepository memberRepository) {
+        this.clubRepository = Objects.requireNonNull(clubRepository, "clubRepository must not be null");
+        this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository must not be null");
     }
 
     public ClubResponse createClub(CreateClubRequest request, Long userId) throws SQLException {
@@ -47,7 +47,6 @@ public class ClubService {
         member.setRole(Role.ADMIN);
         memberRepository.save(member);
         
-        // Return the club fully loaded from the database (including calculated memberCount and UserResponse)
         return clubRepository.findClubResponseById(savedClub.getId(), userId);
     }
 
@@ -145,8 +144,6 @@ public class ClubService {
             throw new IllegalArgumentException("You are not a member of this club");
         }
         
-        // Optional logic: Prevent the only ADMIN from leaving without transferring ownership
-        // For simplicity, we just allow leaving.
         memberRepository.deleteByUserAndClub(requesterUserId, request.getClubId());
     }
 

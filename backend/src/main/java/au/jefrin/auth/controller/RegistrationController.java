@@ -5,6 +5,7 @@ import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.auth.dto.RegistrationRequest;
 import au.jefrin.auth.dto.LoginResponse;
 import au.jefrin.auth.service.AuthService;
+import au.jefrin.common.config.ServiceFactory;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ public class RegistrationController extends BaseController<RegistrationRequest> 
     @Override
     public void init() throws ServletException {
         super.init();
-        this.authService = new AuthService();
+        this.authService = ServiceFactory.createAuthService();
     }
 
     @Override

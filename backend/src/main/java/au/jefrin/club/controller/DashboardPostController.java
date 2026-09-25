@@ -5,6 +5,7 @@ import au.jefrin.club.dto.DashboardPostPayload;
 import au.jefrin.club.dto.DashboardPostResponse;
 import au.jefrin.club.dto.EditPostRequest;
 import au.jefrin.club.service.DashboardService;
+import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
 import au.jefrin.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;
@@ -21,7 +22,7 @@ public class DashboardPostController extends AuthenticatedController<DashboardPo
     @Override
     public void init() throws ServletException {
         super.init();
-        this.dashboardService = new DashboardService();
+        this.dashboardService = ServiceFactory.createDashboardService();
     }
 
     @Override

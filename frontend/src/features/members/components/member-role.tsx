@@ -64,7 +64,7 @@ export default function MemberRole({
     <Select
       value={role}
       onValueChange={(val) => {
-        val && handleRoleChange(val);
+        if (val) handleRoleChange(val);
       }}
       disabled={changeRoleMutation.isPending || !canManageMembers}
     >

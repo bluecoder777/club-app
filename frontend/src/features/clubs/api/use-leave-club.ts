@@ -24,6 +24,7 @@ export const useLeaveClub = ({ mutationConfig, clubId }: UseLeaveClub) => {
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
+    ...restConfig,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
         queryKey: getClubQueryOptions(clubId).queryKey,

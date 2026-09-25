@@ -47,10 +47,8 @@ export function CreatePost({ clubId }: CreatePostProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger>
-        <Button>
-          <Plus /> New Post
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <Plus /> New Post
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>

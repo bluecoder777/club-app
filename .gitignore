@@ -13,7 +13,7 @@ target/
 *.iws
 *.iml
 *.ipr
-backend/.smarttomcat/*
+.smarttomcat/
 
 ### Eclipse ###
 .apt_generated
