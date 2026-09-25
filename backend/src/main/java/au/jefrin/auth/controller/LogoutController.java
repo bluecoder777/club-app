@@ -4,6 +4,7 @@ import au.jefrin.common.controller.BaseController;
 import au.jefrin.auth.dto.LogoutRequest;
 import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.auth.service.AuthService;
+import au.jefrin.common.config.ServiceFactory;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,7 +17,7 @@ public class LogoutController extends BaseController<LogoutRequest> {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.authService = new AuthService();
+        this.authService = ServiceFactory.createAuthService();
     }
 
     @Override

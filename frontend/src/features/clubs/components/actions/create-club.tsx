@@ -39,10 +39,8 @@ export function CreateClub() {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button>
-          <Plus /> New Club
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <Plus /> New Club
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>

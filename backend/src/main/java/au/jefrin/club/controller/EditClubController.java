@@ -2,9 +2,9 @@ package au.jefrin.club.controller;
 
 import au.jefrin.club.dto.EditClubRequest;
 import au.jefrin.common.dto.ApiResponse;
-import au.jefrin.club.model.Club;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.service.ClubService;
+import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,7 +18,7 @@ public class EditClubController extends AuthenticatedController<EditClubRequest>
     @Override
     public void init() throws ServletException {
         super.init();
-        this.clubService = new ClubService();
+        this.clubService = ServiceFactory.createClubService();
     }
 
     @Override

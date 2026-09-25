@@ -1,16 +1,24 @@
-# React + Vite
+# Club Administration Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The frontend is a React and TypeScript client for the Club Administration API. It provides registration and login, club membership management, member roles, and club dashboard posts.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The backend should be running on `http://localhost:8080`.
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Vite serves the application on `http://localhost:5173` and proxies `/api` requests to the backend. Set `VITE_API_PROXY_TARGET` to use a different backend address during development.
 
-## Expanding the Oxlint configuration
+Set `VITE_API_URL` when the API is exposed under a different base path. Its default value is `/api/v1/`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Build
+
+```bash
+npm run build
+```
+
+The production files are written to `dist`.

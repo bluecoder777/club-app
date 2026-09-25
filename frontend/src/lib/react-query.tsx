@@ -3,7 +3,6 @@ import type { ApiError } from '@/types/api';
 
 export const queryConfig = {
   queries: {
-    // throwOnError: true,
     refetchOnWindowFocus: false,
     retry: false,
     staleTime: 1000 * 60,

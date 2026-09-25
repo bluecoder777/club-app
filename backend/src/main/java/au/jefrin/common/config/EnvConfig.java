@@ -1,19 +1,9 @@
 package au.jefrin.common.config;
 
-/**
- * Centralized configuration manager for Environment Variables.
- * This ensures that if the source of configuration changes in the future
- * (e.g. moving to a config server, .properties files, etc.), only this class needs to be updated.
- */
 public class EnvConfig {
 
     public static String get(String key) {
         return System.getenv(key);
-    }
-
-    public static String get(String key, String defaultValue) {
-        String value = System.getenv(key);
-        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
     }
 
     public static String getDbUrl() {

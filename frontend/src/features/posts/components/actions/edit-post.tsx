@@ -44,11 +44,9 @@ export function EditPost({ post }: EditPostProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button variant="outline" className="gap-2">
-          <Pencil />
-          <span className="hidden sm:inline">Edit Post</span>
-        </Button>
+      <DialogTrigger render={<Button variant="outline" className="gap-2" />}>
+        <Pencil />
+        <span className="hidden sm:inline">Edit Post</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>

@@ -49,8 +49,8 @@ const LeaveClub = ({ clubId, clubName }: LeaveClubProps) => {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
-        <Button variant="destructive">Leave</Button>
+      <AlertDialogTrigger render={<Button variant="destructive" />}>
+        Leave
       </AlertDialogTrigger>
 
       <AlertDialogContent>

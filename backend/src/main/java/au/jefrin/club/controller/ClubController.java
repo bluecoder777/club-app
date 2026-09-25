@@ -3,9 +3,9 @@ package au.jefrin.club.controller;
 import au.jefrin.common.controller.AuthenticatedController;
 import au.jefrin.club.dto.CreateClubRequest;
 import au.jefrin.common.dto.ApiResponse;
-import au.jefrin.club.model.Club;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.service.ClubService;
+import au.jefrin.common.config.ServiceFactory;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class ClubController extends AuthenticatedController<CreateClubRequest> {
     @Override
     public void init() throws ServletException {
         super.init();
-        this.clubService = new ClubService();
+        this.clubService = ServiceFactory.createClubService();
     }
 
     @Override
@@ -35,8 +35,7 @@ public class ClubController extends AuthenticatedController<CreateClubRequest> {
                 List<ClubResponse> clubs = clubService.getAllClubs(userId);
                 return ApiResponse.success(clubs);
             } else {
-                // e.g. pathInfo = "/123"
-                String idPart = pathInfo.substring(1); // remove leading slash
+                String idPart = pathInfo.substring(1);
                 try {
                     Long clubId = Long.parseLong(idPart);
                     ClubResponse club = clubService.getClub(clubId, userId);

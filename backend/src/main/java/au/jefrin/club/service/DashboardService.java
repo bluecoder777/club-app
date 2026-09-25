@@ -14,17 +14,22 @@ import au.jefrin.common.exception.UnauthorizedException;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class DashboardService {
     private final DashboardPostRepository dashboardPostRepository;
     private final MemberRepository memberRepository;
     private final ClubRepository clubRepository;
 
-    public DashboardService() {
-        this.dashboardPostRepository = new DashboardPostRepository();
-        this.memberRepository = new MemberRepository();
-        this.clubRepository = new ClubRepository();
+    public DashboardService(DashboardPostRepository dashboardPostRepository,
+                            MemberRepository memberRepository,
+                            ClubRepository clubRepository) {
+        this.dashboardPostRepository = Objects.requireNonNull(
+                dashboardPostRepository,
+                "dashboardPostRepository must not be null"
+        );
+        this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository must not be null");
+        this.clubRepository = Objects.requireNonNull(clubRepository, "clubRepository must not be null");
     }
 
     private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
@@ -84,7 +89,6 @@ public class DashboardService {
 
         dashboardPostRepository.update(post);
         
-        // Fetch again to get updated details (including user data)
         return dashboardPostRepository.findPostResponseById(request.getPostId());
     }
 

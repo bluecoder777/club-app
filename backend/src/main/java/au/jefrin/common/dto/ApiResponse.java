@@ -19,7 +19,6 @@ public class ApiResponse <T> {
     public static class ApiError {
         private String message;
         private Integer code;
-        private Object details;
     }
 
     public static <T> ApiResponse<T> success(T data) {
@@ -39,15 +38,5 @@ public class ApiResponse <T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(Integer code, String message, Object details) {
-        return ApiResponse.<T>builder()
-                .status(ApiStatus.ERROR)
-                .error(ApiError.builder()
-                        .code(code)
-                        .message(message)
-                        .details(details)
-                        .build())
-                .build();
-    }
 }
 

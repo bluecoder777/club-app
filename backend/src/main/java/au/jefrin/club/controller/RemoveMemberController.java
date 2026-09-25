@@ -3,6 +3,7 @@ package au.jefrin.club.controller;
 import au.jefrin.club.dto.RemoveMemberRequest;
 import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.club.service.ClubService;
+import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,7 +17,7 @@ public class RemoveMemberController extends AuthenticatedController<RemoveMember
     @Override
     public void init() throws ServletException {
         super.init();
-        this.clubService = new ClubService();
+        this.clubService = ServiceFactory.createClubService();
     }
 
     @Override

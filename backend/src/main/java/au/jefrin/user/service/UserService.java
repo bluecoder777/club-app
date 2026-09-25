@@ -9,13 +9,14 @@ import au.jefrin.user.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService() {
-        this.userRepository = new UserRepository();
+    public UserService(UserRepository userRepository) {
+        this.userRepository = Objects.requireNonNull(userRepository, "userRepository must not be null");
     }
 
     public User registerUser(RegistrationRequest request) throws SQLException {
@@ -23,7 +24,6 @@ public class UserService {
             throw new ConflictException("Email is already registered");
         }
 
-        // Hash the password securely using BCrypt
         String hashedPassword = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt(12));
 
         User user = new User(request.getName(), request.getEmail(), hashedPassword);

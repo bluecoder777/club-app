@@ -16,8 +16,8 @@ import au.jefrin.common.util.JwtUtil;
 
 import java.sql.SQLException;
 import au.jefrin.user.service.UserService;
-import au.jefrin.user.service.UserService;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class AuthService {
     
@@ -25,16 +25,20 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public AuthService() {
-        this.userService = new UserService();
-        this.userRepository = new UserRepository();
-        this.refreshTokenRepository = new RefreshTokenRepository();
+    public AuthService(UserService userService,
+                       UserRepository userRepository,
+                       RefreshTokenRepository refreshTokenRepository) {
+        this.userService = Objects.requireNonNull(userService, "userService must not be null");
+        this.userRepository = Objects.requireNonNull(userRepository, "userRepository must not be null");
+        this.refreshTokenRepository = Objects.requireNonNull(
+                refreshTokenRepository,
+                "refreshTokenRepository must not be null"
+        );
     }
 
     public LoginResponse login(LoginRequest request) throws SQLException {
         User user = userService.authenticate(request);
 
-        // Security best practice: When logging in freshly, revoke any existing tokens for this user
         refreshTokenRepository.revokeAllUserTokens(user.getId());
 
         TokenResponse tokenResponse = generateTokensForUser(user);
@@ -63,7 +67,7 @@ public class AuthService {
             throw new UnauthorizedException("User not found");
         }
 
-        // Revoke the old token now that it has been used (Refresh Token Rotation)
+        // Rotate refresh tokens so each token can only be used once.
         refreshTokenRepository.revokeToken(tokenString);
 
         return generateTokensForUser(user);
@@ -74,11 +78,9 @@ public class AuthService {
             throw new IllegalArgumentException("Refresh token is required for logout");
         }
         
-        // Find the token in the database
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken);
         
         if (storedToken != null && !storedToken.isRevoked()) {
-            // Revoke the token so it cannot be used to generate new access tokens
             refreshTokenRepository.revokeToken(refreshToken);
         }
     }
@@ -87,7 +89,6 @@ public class AuthService {
         String accessToken = JwtUtil.generateAccessToken(user);
         String refreshTokenString = JwtUtil.generateRefreshToken(user);
 
-        // Store the new refresh token in the database
         long expirationTime = EnvConfig.getJwtRefreshExpiry();
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + expirationTime);
 
@@ -109,10 +110,8 @@ public class AuthService {
 
 
     public LoginResponse register(RegistrationRequest request) throws SQLException {
-        // Register the user via UserService
         User user = userService.registerUser(request);
-        
-        // Generate tokens for the newly registered user
+
         TokenResponse tokenResponse = generateTokensForUser(user);
         
         return LoginResponse.builder()
