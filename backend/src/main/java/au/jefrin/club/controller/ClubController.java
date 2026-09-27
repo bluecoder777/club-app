@@ -28,27 +28,26 @@ public class ClubController extends AuthenticatedController<CreateClubRequest> {
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(CreateClubRequest request, HttpServletRequest req, Long userId) throws Exception {
-        if ("GET".equalsIgnoreCase(req.getMethod())) {
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                List<ClubResponse> clubs = clubService.getAllClubs(userId);
-                return ApiResponse.success(clubs);
-            } else {
-                String idPart = pathInfo.substring(1);
-                try {
-                    Long clubId = Long.parseLong(idPart);
-                    ClubResponse club = clubService.getClub(clubId, userId);
-                    return ApiResponse.success(club);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid club ID format");
-                }
-            }
-        } else if ("POST".equalsIgnoreCase(req.getMethod())) {
-            ClubResponse club = clubService.createClub(request, userId);
-            return ApiResponse.success(club);
-        } else {
-            throw new IllegalArgumentException("Unsupported HTTP method");
+    protected ApiResponse<?> processAuthenticatedGet(HttpServletRequest req, Long userId) throws Exception {
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            List<ClubResponse> clubs = clubService.getAllClubs(userId);
+            return ApiResponse.success(clubs);
         }
+
+        String idPart = pathInfo.substring(1);
+        try {
+            Long clubId = Long.parseLong(idPart);
+            ClubResponse club = clubService.getClub(clubId, userId);
+            return ApiResponse.success(club);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid club ID format");
+        }
+    }
+
+    @Override
+    protected ApiResponse<?> processAuthenticatedPost(CreateClubRequest request, HttpServletRequest req, Long userId) throws Exception {
+        ClubResponse club = clubService.createClub(request, userId);
+        return ApiResponse.success(club);
     }
 }

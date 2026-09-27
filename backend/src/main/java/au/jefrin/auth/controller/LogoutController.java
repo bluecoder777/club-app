@@ -26,7 +26,7 @@ public class LogoutController extends BaseController<LogoutRequest> {
     }
 
     @Override
-    protected ApiResponse<?> processRequest(LogoutRequest request, HttpServletRequest req) throws Exception {
+    protected ApiResponse<?> processPost(LogoutRequest request, HttpServletRequest req) throws Exception {
         if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
             throw new IllegalArgumentException("Missing refresh token");
         }

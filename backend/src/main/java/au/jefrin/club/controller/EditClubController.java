@@ -27,7 +27,7 @@ public class EditClubController extends AuthenticatedController<EditClubRequest>
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(EditClubRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedPatch(EditClubRequest request, HttpServletRequest req, Long userId) throws Exception {
         ClubResponse club = clubService.editClub(request, userId);
         return ApiResponse.success(club);
     }

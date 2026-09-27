@@ -73,15 +73,4 @@ public class JwtUtil {
                 .get("id", Long.class);
     }
     
-    public static boolean isAccessTokenValid(String token) {
-        try {
-            Jwts.parser()
-                .verifyWith(getAccessSigningKey())
-                .build()
-                .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 }

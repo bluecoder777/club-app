@@ -26,7 +26,7 @@ public class UpdateMemberRoleController extends AuthenticatedController<UpdateMe
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(UpdateMemberRoleRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedPatch(UpdateMemberRoleRequest request, HttpServletRequest req, Long userId) throws Exception {
         clubService.updateMemberRole(request, userId);
         return ApiResponse.success("Member role updated successfully");
     }

@@ -28,7 +28,7 @@ public class RefreshTokenController extends BaseController<RefreshTokenRequest> 
     }
 
     @Override
-    protected ApiResponse<?> processRequest(RefreshTokenRequest request, HttpServletRequest req) throws Exception {
+    protected ApiResponse<?> processPost(RefreshTokenRequest request, HttpServletRequest req) throws Exception {
         if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
             throw new IllegalArgumentException("Missing refresh token");
         }
