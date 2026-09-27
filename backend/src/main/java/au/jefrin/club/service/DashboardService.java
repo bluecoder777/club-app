@@ -6,11 +6,10 @@ import au.jefrin.club.dto.EditPostRequest;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.DashboardPost;
 import au.jefrin.club.model.Member;
-import au.jefrin.club.model.Role;
 import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.DashboardPostRepository;
 import au.jefrin.club.repository.MemberRepository;
-import au.jefrin.common.exception.UnauthorizedException;
+import au.jefrin.club.policy.ClubMembershipPolicy;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -20,30 +19,29 @@ public class DashboardService {
     private final DashboardPostRepository dashboardPostRepository;
     private final MemberRepository memberRepository;
     private final ClubRepository clubRepository;
+    private final ClubMembershipPolicy membershipPolicy;
 
     public DashboardService(DashboardPostRepository dashboardPostRepository,
                             MemberRepository memberRepository,
-                            ClubRepository clubRepository) {
+                            ClubRepository clubRepository,
+                            ClubMembershipPolicy membershipPolicy) {
         this.dashboardPostRepository = Objects.requireNonNull(
                 dashboardPostRepository,
                 "dashboardPostRepository must not be null"
         );
         this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository must not be null");
         this.clubRepository = Objects.requireNonNull(clubRepository, "clubRepository must not be null");
+        this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
     private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
         Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
-        if (requester == null || requester.getRole() != Role.ADMIN) {
-            throw new UnauthorizedException("Only club admins can perform this action.");
-        }
+        membershipPolicy.requireAdmin(requester);
     }
 
     private void checkMemberPermission(Long clubId, Long requesterUserId) throws SQLException {
         Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
-        if (requester == null) {
-            throw new UnauthorizedException("Only club members can view dashboard posts.");
-        }
+        membershipPolicy.requireMember(requester);
     }
 
     public DashboardPostResponse createPost(CreatePostRequest request, Long userId) throws SQLException {

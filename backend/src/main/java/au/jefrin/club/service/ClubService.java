@@ -2,7 +2,6 @@ package au.jefrin.club.service;
 
 import au.jefrin.club.dto.EditClubRequest;
 import au.jefrin.club.dto.LeaveClubRequest;
-import au.jefrin.common.exception.UnauthorizedException;
 import au.jefrin.club.dto.UpdateMemberRoleRequest;
 import au.jefrin.club.dto.RemoveMemberRequest;
 
@@ -14,6 +13,7 @@ import au.jefrin.club.model.Member;
 import au.jefrin.club.model.Role;
 import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.MemberRepository;
+import au.jefrin.club.policy.ClubMembershipPolicy;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -23,10 +23,14 @@ import au.jefrin.club.dto.ClubMemberResponse;
 public class ClubService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
+    private final ClubMembershipPolicy membershipPolicy;
 
-    public ClubService(ClubRepository clubRepository, MemberRepository memberRepository) {
+    public ClubService(ClubRepository clubRepository,
+                       MemberRepository memberRepository,
+                       ClubMembershipPolicy membershipPolicy) {
         this.clubRepository = Objects.requireNonNull(clubRepository, "clubRepository must not be null");
         this.memberRepository = Objects.requireNonNull(memberRepository, "memberRepository must not be null");
+        this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
     public ClubResponse createClub(CreateClubRequest request, Long userId) throws SQLException {
@@ -65,16 +69,14 @@ public class ClubService {
         Member member = new Member();
         member.setUserId(userId);
         member.setClubId(clubId);
-        member.setRole(Role.MEMBER);
+        member.setRole(membershipPolicy.roleForNewMember(memberRepository.hasMembers(clubId)));
         memberRepository.save(member);
     }
 
 
     private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
         Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
-        if (requester == null || requester.getRole() != Role.ADMIN) {
-            throw new UnauthorizedException("Only club admins can perform this action.");
-        }
+        membershipPolicy.requireAdmin(requester);
     }
 
     public ClubResponse editClub(EditClubRequest request, Long requesterUserId) throws SQLException {
@@ -138,9 +140,7 @@ public class ClubService {
         }
         
         Member membership = memberRepository.findByUserAndClub(requesterUserId, request.getClubId());
-        if (membership == null) {
-            throw new IllegalArgumentException("You are not a member of this club");
-        }
+        membershipPolicy.requireMember(membership);
         
         memberRepository.deleteByUserAndClub(requesterUserId, request.getClubId());
     }
@@ -156,9 +156,7 @@ public class ClubService {
         }
         
         Member membership = memberRepository.findByUserAndClub(requesterUserId, clubId);
-        if (membership == null) {
-            throw new UnauthorizedException("You must be a member of the club to view its members");
-        }
+        membershipPolicy.requireMember(membership);
         
         return memberRepository.findAllMembersByClubId(clubId);
     }

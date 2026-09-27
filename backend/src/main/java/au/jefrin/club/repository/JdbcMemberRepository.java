@@ -50,6 +50,18 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
+    @Override
+    public boolean hasMembers(Long clubId) throws SQLException {
+        String query = "SELECT EXISTS (SELECT 1 FROM member WHERE club_id = ?)";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, clubId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        }
+    }
+
 
     @Override
     public Member findByUserAndClub(Long userId, Long clubId) throws SQLException {

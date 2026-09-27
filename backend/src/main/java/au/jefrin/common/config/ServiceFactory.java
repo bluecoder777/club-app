@@ -7,6 +7,7 @@ import au.jefrin.club.repository.JdbcDashboardPostRepository;
 import au.jefrin.club.repository.JdbcMemberRepository;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.club.service.DashboardService;
+import au.jefrin.club.policy.ClubMembershipPolicy;
 import au.jefrin.user.repository.JdbcUserRepository;
 import au.jefrin.user.repository.UserRepository;
 import au.jefrin.user.service.UserService;
@@ -22,14 +23,19 @@ public final class ServiceFactory {
     }
 
     public static ClubService createClubService() {
-        return new ClubService(new JdbcClubRepository(), new JdbcMemberRepository());
+        return new ClubService(
+                new JdbcClubRepository(),
+                new JdbcMemberRepository(),
+                new ClubMembershipPolicy()
+        );
     }
 
     public static DashboardService createDashboardService() {
         return new DashboardService(
                 new JdbcDashboardPostRepository(),
                 new JdbcMemberRepository(),
-                new JdbcClubRepository()
+                new JdbcClubRepository(),
+                new ClubMembershipPolicy()
         );
     }
 }

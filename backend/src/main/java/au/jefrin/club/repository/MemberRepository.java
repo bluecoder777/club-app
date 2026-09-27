@@ -12,6 +12,8 @@ public interface MemberRepository {
 
     boolean existsByUserAndClub(Long userId, Long clubId) throws SQLException;
 
+    boolean hasMembers(Long clubId) throws SQLException;
+
     Member findByUserAndClub(Long userId, Long clubId) throws SQLException;
 
     List<ClubMemberResponse> findAllMembersByClubId(Long clubId) throws SQLException;
