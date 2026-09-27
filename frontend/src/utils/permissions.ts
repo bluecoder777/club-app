@@ -5,4 +5,5 @@ export const permissions = {
   deleteClub: (role: Role) => role === 'ADMIN',
   manageMembers: (role: Role) => role === 'ADMIN',
   createPost: (role: Role) => role === 'ADMIN',
+  createEvent: (role: Role) => role === 'ADMIN',
 };

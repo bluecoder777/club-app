@@ -6,5 +6,5 @@ export type ClubMember = {
   email: string;
   role: Role;
   userId: number;
-  joinedAt: number;
+  joinedAt: string;
 };

@@ -5,7 +5,7 @@ export type Club = {
   name: string;
   description: string;
   memberCount: number;
-  dateOfCreation: number;
+  dateOfCreation: string;
   createdBy: {
     id: number;
     name: string;

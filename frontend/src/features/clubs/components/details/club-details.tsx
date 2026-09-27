@@ -1,10 +1,11 @@
-import { ArrowLeft, MessageSquare, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, MessageSquare, Users } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import ClubDetailsHeader from './club-details-header';
 import { Posts } from '@/features/posts/components/list/posts';
 import { Members } from '@/features/members/components/members';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Events } from '@/features/events/components/events';
 
 export default function ClubDetails() {
   const { id } = useParams();
@@ -36,6 +37,14 @@ export default function ClubDetails() {
           </TabsTrigger>
 
           <TabsTrigger
+            value="events"
+            className="data-[state=active]:bg-background gap-2 rounded-md px-4"
+          >
+            <CalendarDays className="size-4" />
+            Events
+          </TabsTrigger>
+
+          <TabsTrigger
             value="members"
             className="data-[state=active]:bg-background gap-2 rounded-md px-4"
           >
@@ -46,6 +55,10 @@ export default function ClubDetails() {
 
         <TabsContent value="posts" className="mt-6">
           <Posts clubId={idAsNumber} />
+        </TabsContent>
+
+        <TabsContent value="events" className="mt-6">
+          <Events clubId={idAsNumber} />
         </TabsContent>
 
         <TabsContent value="members" className="mt-6">
