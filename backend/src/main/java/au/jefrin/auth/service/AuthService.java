@@ -14,9 +14,9 @@ import au.jefrin.auth.repository.RefreshTokenRepository;
 import au.jefrin.user.repository.UserRepository;
 import au.jefrin.common.util.JwtUtil;
 
-import java.sql.SQLException;
 import au.jefrin.user.service.UserService;
-import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class AuthService {
@@ -36,7 +36,7 @@ public class AuthService {
         );
     }
 
-    public LoginResponse login(LoginRequest request) throws SQLException {
+    public LoginResponse login(LoginRequest request) {
         User user = userService.authenticate(request);
 
         refreshTokenRepository.revokeAllUserTokens(user.getId());
@@ -50,22 +50,20 @@ public class AuthService {
                 .build();
     }
 
-    public TokenResponse refreshTokens(String tokenString) throws SQLException {
+    public TokenResponse refreshTokens(String tokenString) {
         if (!JwtUtil.isRefreshTokenValid(tokenString)) {
             throw new UnauthorizedException("Invalid or expired refresh token");
         }
 
-        RefreshToken storedToken = refreshTokenRepository.findByToken(tokenString);
-        if (storedToken == null || storedToken.isRevoked()) {
+        RefreshToken storedToken = refreshTokenRepository.findByToken(tokenString)
+                .orElseThrow(() -> new UnauthorizedException("Invalid or revoked refresh token"));
+        if (storedToken.isRevoked()) {
             throw new UnauthorizedException("Invalid or revoked refresh token");
         }
 
         String email = JwtUtil.extractEmailFromRefreshToken(tokenString);
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) {
-            throw new UnauthorizedException("User not found");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
 
         // Rotate refresh tokens so each token can only be used once.
         refreshTokenRepository.revokeToken(tokenString);
@@ -73,24 +71,22 @@ public class AuthService {
         return generateTokensForUser(user);
     }
 
-    public void logout(String refreshToken) throws SQLException {
+    public void logout(String refreshToken) {
         if (refreshToken == null || refreshToken.trim().isEmpty()) {
             throw new IllegalArgumentException("Refresh token is required for logout");
         }
         
-        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken);
-        
-        if (storedToken != null && !storedToken.isRevoked()) {
-            refreshTokenRepository.revokeToken(refreshToken);
-        }
+        refreshTokenRepository.findByToken(refreshToken)
+                .filter(token -> !token.isRevoked())
+                .ifPresent(token -> refreshTokenRepository.revokeToken(refreshToken));
     }
 
-    private TokenResponse generateTokensForUser(User user) throws SQLException {
+    private TokenResponse generateTokensForUser(User user) {
         String accessToken = JwtUtil.generateAccessToken(user);
         String refreshTokenString = JwtUtil.generateRefreshToken(user);
 
         long expirationTime = EnvConfig.getJwtRefreshExpiry();
-        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + expirationTime);
+        LocalDateTime expiresAt = LocalDateTime.now().plus(Duration.ofMillis(expirationTime));
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(refreshTokenString)
@@ -109,7 +105,7 @@ public class AuthService {
 
 
 
-    public LoginResponse register(RegistrationRequest request) throws SQLException {
+    public LoginResponse register(RegistrationRequest request) {
         User user = userService.registerUser(request);
 
         TokenResponse tokenResponse = generateTokensForUser(user);

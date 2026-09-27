@@ -2,7 +2,7 @@ package au.jefrin.club.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import au.jefrin.user.dto.UserResponse;
 
 @Getter
@@ -14,7 +14,7 @@ public class DashboardPostResponse {
     private String description;
     private UserResponse createdBy;
     private UserResponse lastUpdatedBy;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
 

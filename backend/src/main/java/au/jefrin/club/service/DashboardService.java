@@ -10,10 +10,11 @@ import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.DashboardPostRepository;
 import au.jefrin.club.repository.MemberRepository;
 import au.jefrin.club.policy.ClubMembershipPolicy;
+import au.jefrin.common.exception.DataAccessException;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class DashboardService {
     private final DashboardPostRepository dashboardPostRepository;
@@ -34,24 +35,23 @@ public class DashboardService {
         this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
-    private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
-        Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
+    private void checkAdminPermission(Long clubId, Long requesterUserId) {
+        Optional<Member> requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
         membershipPolicy.requireAdmin(requester);
     }
 
-    private void checkMemberPermission(Long clubId, Long requesterUserId) throws SQLException {
-        Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
+    private void checkMemberPermission(Long clubId, Long requesterUserId) {
+        Optional<Member> requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
         membershipPolicy.requireMember(requester);
     }
 
-    public DashboardPostResponse createPost(CreatePostRequest request, Long userId) throws SQLException {
+    public DashboardPostResponse createPost(CreatePostRequest request, Long userId) {
         if (request.getClubId() == null || request.getTitle() == null || request.getTitle().trim().isEmpty() ||
             request.getDescription() == null || request.getDescription().trim().isEmpty()) {
             throw new IllegalArgumentException("Club ID, title, and description are required");
         }
 
-        Club club = clubRepository.findById(request.getClubId());
-        if (club == null) {
+        if (clubRepository.findById(request.getClubId()).isEmpty()) {
             throw new IllegalArgumentException("Club not found");
         }
 
@@ -65,19 +65,18 @@ public class DashboardService {
         post.setLastUpdatedBy(userId);
 
         DashboardPost savedPost = dashboardPostRepository.save(post);
-        return dashboardPostRepository.findPostResponseById(savedPost.getId());
+        return dashboardPostRepository.findPostResponseById(savedPost.getId())
+                .orElseThrow(() -> new DataAccessException("Created dashboard post could not be loaded"));
     }
 
-    public DashboardPostResponse editPost(EditPostRequest request, Long userId) throws SQLException {
+    public DashboardPostResponse editPost(EditPostRequest request, Long userId) {
         if (request.getPostId() == null || request.getTitle() == null || request.getTitle().trim().isEmpty() ||
             request.getDescription() == null || request.getDescription().trim().isEmpty()) {
             throw new IllegalArgumentException("Post ID, title, and description are required");
         }
 
-        DashboardPost post = dashboardPostRepository.findById(request.getPostId());
-        if (post == null) {
-            throw new IllegalArgumentException("Dashboard post not found");
-        }
+        DashboardPost post = dashboardPostRepository.findById(request.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("Dashboard post not found"));
 
         checkAdminPermission(post.getClubId(), userId);
 
@@ -87,16 +86,16 @@ public class DashboardService {
 
         dashboardPostRepository.update(post);
         
-        return dashboardPostRepository.findPostResponseById(request.getPostId());
+        return dashboardPostRepository.findPostResponseById(request.getPostId())
+                .orElseThrow(() -> new DataAccessException("Updated dashboard post could not be loaded"));
     }
 
-    public List<DashboardPostResponse> listPosts(Long clubId, Long userId) throws SQLException {
+    public List<DashboardPostResponse> listPosts(Long clubId, Long userId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
 
-        Club club = clubRepository.findById(clubId);
-        if (club == null) {
+        if (clubRepository.findById(clubId).isEmpty()) {
             throw new IllegalArgumentException("Club not found");
         }
 

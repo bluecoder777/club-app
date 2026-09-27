@@ -2,15 +2,15 @@ package au.jefrin.auth.repository;
 
 import au.jefrin.auth.model.RefreshToken;
 
-import java.sql.SQLException;
+import java.util.Optional;
 
 public interface RefreshTokenRepository {
-    void save(RefreshToken refreshToken) throws SQLException;
+    void save(RefreshToken refreshToken);
 
-    RefreshToken findByToken(String token) throws SQLException;
+    Optional<RefreshToken> findByToken(String token);
 
-    void revokeToken(String token) throws SQLException;
+    void revokeToken(String token);
 
-    void revokeAllUserTokens(Long userId) throws SQLException;
+    void revokeAllUserTokens(Long userId);
 }
 

@@ -2,12 +2,12 @@ package au.jefrin.user.repository;
 
 import au.jefrin.user.model.User;
 
-import java.sql.SQLException;
+import java.util.Optional;
 
 public interface UserRepository {
-    boolean existsByEmail(String email) throws SQLException;
+    boolean existsByEmail(String email);
 
-    User save(User user) throws SQLException;
+    User save(User user);
 
-    User findByEmail(String email) throws SQLException;
+    Optional<User> findByEmail(String email);
 }

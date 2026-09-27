@@ -1,13 +1,13 @@
 package au.jefrin.club.model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Member {
     private Long id;
     private Long userId;
     private Long clubId;
     private Role role;
-    private Timestamp joinedAt;
+    private LocalDateTime joinedAt;
 
     public Member() {}
 
@@ -23,6 +23,6 @@ public class Member {
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
 
-    public Timestamp getJoinedAt() { return joinedAt; }
-    public void setJoinedAt(Timestamp joinedAt) { this.joinedAt = joinedAt; }
+    public LocalDateTime getJoinedAt() { return joinedAt; }
+    public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
 }

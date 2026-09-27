@@ -4,7 +4,7 @@ import au.jefrin.club.model.Role;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -14,6 +14,6 @@ public class ClubMemberResponse {
     private String name;
     private String email;
     private Role role;
-    private Timestamp joinedAt;
+    private LocalDateTime joinedAt;
 }
 

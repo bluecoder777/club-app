@@ -1,6 +1,7 @@
 package au.jefrin.common.controller;
 
 import au.jefrin.common.exception.ConflictException;
+import au.jefrin.common.exception.DataAccessException;
 import au.jefrin.common.exception.UnauthorizedException;
 
 import au.jefrin.common.dto.ApiResponse;
@@ -13,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 public abstract class BaseController<T> extends HttpServlet {
 
@@ -91,7 +91,7 @@ public abstract class BaseController<T> extends HttpServlet {
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Malformed JSON request payload");
             objectMapper.writeValue(resp.getWriter(), errorResponse);
             
-        } catch (SQLException e) {
+        } catch (DataAccessException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error occurred");

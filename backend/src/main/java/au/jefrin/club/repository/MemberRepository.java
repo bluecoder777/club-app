@@ -4,21 +4,21 @@ import au.jefrin.club.dto.ClubMemberResponse;
 import au.jefrin.club.model.Member;
 import au.jefrin.club.model.Role;
 
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepository {
-    Member save(Member member) throws SQLException;
+    Member save(Member member);
 
-    boolean existsByUserAndClub(Long userId, Long clubId) throws SQLException;
+    boolean existsByUserAndClub(Long userId, Long clubId);
 
-    boolean hasMembers(Long clubId) throws SQLException;
+    boolean hasMembers(Long clubId);
 
-    Member findByUserAndClub(Long userId, Long clubId) throws SQLException;
+    Optional<Member> findByUserAndClub(Long userId, Long clubId);
 
-    List<ClubMemberResponse> findAllMembersByClubId(Long clubId) throws SQLException;
+    List<ClubMemberResponse> findAllMembersByClubId(Long clubId);
 
-    void updateRole(Long userId, Long clubId, Role role) throws SQLException;
+    void updateRole(Long userId, Long clubId, Role role);
 
-    void deleteByUserAndClub(Long userId, Long clubId) throws SQLException;
+    void deleteByUserAndClub(Long userId, Long clubId);
 }

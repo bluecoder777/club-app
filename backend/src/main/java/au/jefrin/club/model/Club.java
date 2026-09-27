@@ -1,12 +1,12 @@
 package au.jefrin.club.model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Club {
     private Long id;
     private String name;
     private String description;
-    private Timestamp dateOfCreation;
+    private LocalDateTime dateOfCreation;
     private Long createdBy;
     private int memberCount;
 
@@ -21,8 +21,8 @@ public class Club {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     
-    public Timestamp getDateOfCreation() { return dateOfCreation; }
-    public void setDateOfCreation(Timestamp dateOfCreation) { this.dateOfCreation = dateOfCreation; }
+    public LocalDateTime getDateOfCreation() { return dateOfCreation; }
+    public void setDateOfCreation(LocalDateTime dateOfCreation) { this.dateOfCreation = dateOfCreation; }
     
     public Long getCreatedBy() { return createdBy; }
     public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }

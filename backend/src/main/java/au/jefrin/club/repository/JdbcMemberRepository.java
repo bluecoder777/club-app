@@ -3,20 +3,25 @@ package au.jefrin.club.repository;
 import au.jefrin.club.model.Role;
 
 import au.jefrin.common.config.DatabaseConfig;
+import au.jefrin.common.repository.JdbcOperation;
 import au.jefrin.club.model.Member;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 import au.jefrin.club.dto.ClubMemberResponse;
 
 public class JdbcMemberRepository implements MemberRepository {
 
     @Override
-    public Member save(Member member) throws SQLException {
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            return insert(connection, member);
-        }
+    public Member save(Member member) {
+        return JdbcOperation.execute("Failed to save club member", () -> {
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                return insert(connection, member);
+            }
+        });
     }
 
     static Member insert(Connection connection, Member member) throws SQLException {
@@ -29,7 +34,7 @@ public class JdbcMemberRepository implements MemberRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     member.setId(rs.getLong("id"));
-                    member.setJoinedAt(rs.getTimestamp("joined_at"));
+                    member.setJoinedAt(rs.getObject("joined_at", LocalDateTime.class));
                     return member;
                 }
             }
@@ -38,100 +43,112 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     @Override
-    public boolean existsByUserAndClub(Long userId, Long clubId) throws SQLException {
-        String query = "SELECT 1 FROM member WHERE user_id = ? AND club_id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setLong(1, userId);
-            stmt.setLong(2, clubId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
-
-    @Override
-    public boolean hasMembers(Long clubId) throws SQLException {
-        String query = "SELECT EXISTS (SELECT 1 FROM member WHERE club_id = ?)";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setLong(1, clubId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next() && rs.getBoolean(1);
-            }
-        }
-    }
-
-
-    @Override
-    public Member findByUserAndClub(Long userId, Long clubId) throws SQLException {
-        String query = "SELECT id, user_id, club_id, role, joined_at FROM member WHERE user_id = ? AND club_id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setLong(1, userId);
-            stmt.setLong(2, clubId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Member m = new Member();
-                    m.setId(rs.getLong("id"));
-                    m.setUserId(rs.getLong("user_id"));
-                    m.setClubId(rs.getLong("club_id"));
-                    m.setRole(Role.valueOf(rs.getString("role")));
-                    m.setJoinedAt(rs.getTimestamp("joined_at"));
-                    return m;
+    public boolean existsByUserAndClub(Long userId, Long clubId) {
+        return JdbcOperation.execute("Failed to check club membership", () -> {
+            String query = "SELECT 1 FROM member WHERE user_id = ? AND club_id = ?";
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, userId);
+                stmt.setLong(2, clubId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rs.next();
                 }
             }
-        }
-        return null;
+        });
     }
 
     @Override
-    public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) throws SQLException {
-        String query = "SELECT m.id, m.user_id, u.name, u.email, m.role, m.joined_at " +
-                       "FROM member m JOIN \"user\" u ON m.user_id = u.id " +
-                       "WHERE m.club_id = ? " +
-                       "ORDER BY m.joined_at ASC";
-        
-        List<ClubMemberResponse> members = new ArrayList<>();
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setLong(1, clubId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    members.add(ClubMemberResponse.builder()
-                            .id(rs.getLong("id"))
-                            .userId(rs.getLong("user_id"))
-                            .name(rs.getString("name"))
-                            .email(rs.getString("email"))
-                            .role(Role.valueOf(rs.getString("role")))
-                            .joinedAt(rs.getTimestamp("joined_at"))
-                            .build());
+    public boolean hasMembers(Long clubId) {
+        return JdbcOperation.execute("Failed to check whether the club has members", () -> {
+            String query = "SELECT EXISTS (SELECT 1 FROM member WHERE club_id = ?)";
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, clubId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rs.next() && rs.getBoolean(1);
                 }
             }
-        }
-        return members;
+        });
+    }
+
+
+    @Override
+    public Optional<Member> findByUserAndClub(Long userId, Long clubId) {
+        return JdbcOperation.execute("Failed to find club membership", () -> {
+            String query = "SELECT id, user_id, club_id, role, joined_at FROM member WHERE user_id = ? AND club_id = ?";
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, userId);
+                stmt.setLong(2, clubId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        Member member = new Member();
+                        member.setId(rs.getLong("id"));
+                        member.setUserId(rs.getLong("user_id"));
+                        member.setClubId(rs.getLong("club_id"));
+                        member.setRole(Role.valueOf(rs.getString("role")));
+                        member.setJoinedAt(rs.getObject("joined_at", LocalDateTime.class));
+                        return Optional.of(member);
+                    }
+                }
+            }
+            return Optional.empty();
+        });
     }
 
     @Override
-    public void updateRole(Long userId, Long clubId, Role role) throws SQLException {
-        String query = "UPDATE member SET role = ?::member_role WHERE user_id = ? AND club_id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, role.name());
-            stmt.setLong(2, userId);
-            stmt.setLong(3, clubId);
-            stmt.executeUpdate();
-        }
+    public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) {
+        return JdbcOperation.execute("Failed to list club members", () -> {
+            String query = "SELECT m.id, m.user_id, u.name, u.email, m.role, m.joined_at " +
+                           "FROM member m JOIN \"user\" u ON m.user_id = u.id " +
+                           "WHERE m.club_id = ? " +
+                           "ORDER BY m.joined_at ASC";
+
+            List<ClubMemberResponse> members = new ArrayList<>();
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, clubId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        members.add(ClubMemberResponse.builder()
+                                .id(rs.getLong("id"))
+                                .userId(rs.getLong("user_id"))
+                                .name(rs.getString("name"))
+                                .email(rs.getString("email"))
+                                .role(Role.valueOf(rs.getString("role")))
+                                .joinedAt(rs.getObject("joined_at", LocalDateTime.class))
+                                .build());
+                    }
+                }
+            }
+            return members;
+        });
     }
 
     @Override
-    public void deleteByUserAndClub(Long userId, Long clubId) throws SQLException {
-        String query = "DELETE FROM member WHERE user_id = ? AND club_id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setLong(1, userId);
-            stmt.setLong(2, clubId);
-            stmt.executeUpdate();
-        }
+    public void updateRole(Long userId, Long clubId, Role role) {
+        JdbcOperation.execute("Failed to update club member role", () -> {
+            String query = "UPDATE member SET role = ?::member_role WHERE user_id = ? AND club_id = ?";
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, role.name());
+                stmt.setLong(2, userId);
+                stmt.setLong(3, clubId);
+                stmt.executeUpdate();
+            }
+        });
+    }
+
+    @Override
+    public void deleteByUserAndClub(Long userId, Long clubId) {
+        JdbcOperation.execute("Failed to delete club membership", () -> {
+            String query = "DELETE FROM member WHERE user_id = ? AND club_id = ?";
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, userId);
+                stmt.setLong(2, clubId);
+                stmt.executeUpdate();
+            }
+        });
     }
 }

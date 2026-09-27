@@ -8,7 +8,6 @@ import au.jefrin.user.model.User;
 import au.jefrin.user.repository.UserRepository;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 public class UserService {
@@ -19,7 +18,7 @@ public class UserService {
         this.userRepository = Objects.requireNonNull(userRepository, "userRepository must not be null");
     }
 
-    public User registerUser(RegistrationRequest request) throws SQLException {
+    public User registerUser(RegistrationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email is already registered");
         }
@@ -30,11 +29,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User authenticate(LoginRequest request) throws SQLException {
-        User user = userRepository.findByEmail(request.getEmail());
-        if (user == null) {
-            throw new UnauthorizedException("Invalid email or password");
-        }
+    public User authenticate(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
             throw new UnauthorizedException("Invalid email or password");

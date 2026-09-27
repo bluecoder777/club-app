@@ -4,17 +4,17 @@ import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.Member;
 
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public interface ClubRepository {
-    Club createWithFoundingMember(Club club, Member foundingMember) throws SQLException;
+    Club createWithFoundingMember(Club club, Member foundingMember);
 
-    Club findById(Long id) throws SQLException;
+    Optional<Club> findById(Long id);
 
-    void update(Club club) throws SQLException;
+    void update(Club club);
 
-    ClubResponse findClubResponseById(Long id, Long currentUserId) throws SQLException;
+    Optional<ClubResponse> findClubResponseById(Long id, Long currentUserId);
 
-    List<ClubResponse> findAllClubResponses(Long currentUserId) throws SQLException;
+    List<ClubResponse> findAllClubResponses(Long currentUserId);
 }

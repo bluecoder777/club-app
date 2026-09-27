@@ -8,6 +8,7 @@ import au.jefrin.club.dto.RemoveMemberRequest;
 import au.jefrin.club.dto.CreateClubRequest;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.common.exception.ConflictException;
+import au.jefrin.common.exception.DataAccessException;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.Member;
 import au.jefrin.club.model.Role;
@@ -15,9 +16,9 @@ import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.MemberRepository;
 import au.jefrin.club.policy.ClubMembershipPolicy;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import au.jefrin.club.dto.ClubMemberResponse;
 
 public class ClubService {
@@ -33,7 +34,7 @@ public class ClubService {
         this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
-    public ClubResponse createClub(CreateClubRequest request, Long userId) throws SQLException {
+    public ClubResponse createClub(CreateClubRequest request, Long userId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
         }
@@ -49,16 +50,16 @@ public class ClubService {
 
         Club savedClub = clubRepository.createWithFoundingMember(club, foundingMember);
         
-        return clubRepository.findClubResponseById(savedClub.getId(), userId);
+        return clubRepository.findClubResponseById(savedClub.getId(), userId)
+                .orElseThrow(() -> new DataAccessException("Created club could not be loaded"));
     }
 
-    public void joinClub(Long clubId, Long userId) throws SQLException {
+    public void joinClub(Long clubId, Long userId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
 
-        Club club = clubRepository.findById(clubId);
-        if (club == null) {
+        if (clubRepository.findById(clubId).isEmpty()) {
             throw new IllegalArgumentException("Club not found");
         }
 
@@ -74,37 +75,39 @@ public class ClubService {
     }
 
 
-    private void checkAdminPermission(Long clubId, Long requesterUserId) throws SQLException {
-        Member requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
+    private void checkAdminPermission(Long clubId, Long requesterUserId) {
+        Optional<Member> requester = memberRepository.findByUserAndClub(requesterUserId, clubId);
         membershipPolicy.requireAdmin(requester);
     }
 
-    public ClubResponse editClub(EditClubRequest request, Long requesterUserId) throws SQLException {
+    public ClubResponse editClub(EditClubRequest request, Long requesterUserId) {
         if (request.getClubId() == null || request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club ID and valid name are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
         
-        Club club = clubRepository.findById(request.getClubId());
-        if (club == null) {
-            throw new IllegalArgumentException("Club not found");
-        }
+        Club club = clubRepository.findById(request.getClubId())
+                .orElseThrow(() -> new IllegalArgumentException("Club not found"));
         
         club.setName(request.getName());
         club.setDescription(request.getDescription());
         clubRepository.update(club);
         
-        return clubRepository.findClubResponseById(request.getClubId(), requesterUserId);
+        return clubRepository.findClubResponseById(request.getClubId(), requesterUserId)
+                .orElseThrow(() -> new DataAccessException("Updated club could not be loaded"));
     }
 
-    public void updateMemberRole(UpdateMemberRoleRequest request, Long requesterUserId) throws SQLException {
+    public void updateMemberRole(UpdateMemberRoleRequest request, Long requesterUserId) {
         if (request.getClubId() == null || request.getTargetUserId() == null || request.getRole() == null) {
             throw new IllegalArgumentException("Club ID, Target User ID, and Role are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
         
-        Member targetMember = memberRepository.findByUserAndClub(request.getTargetUserId(), request.getClubId());
-        if (targetMember == null) {
+        Optional<Member> targetMember = memberRepository.findByUserAndClub(
+                request.getTargetUserId(),
+                request.getClubId()
+        );
+        if (targetMember.isEmpty()) {
             throw new IllegalArgumentException("Target user is not a member of this club");
         }
         
@@ -115,14 +118,17 @@ public class ClubService {
         memberRepository.updateRole(request.getTargetUserId(), request.getClubId(), request.getRole());
     }
 
-    public void removeMember(RemoveMemberRequest request, Long requesterUserId) throws SQLException {
+    public void removeMember(RemoveMemberRequest request, Long requesterUserId) {
         if (request.getClubId() == null || request.getTargetUserId() == null) {
             throw new IllegalArgumentException("Club ID and Target User ID are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
         
-        Member targetMember = memberRepository.findByUserAndClub(request.getTargetUserId(), request.getClubId());
-        if (targetMember == null) {
+        Optional<Member> targetMember = memberRepository.findByUserAndClub(
+                request.getTargetUserId(),
+                request.getClubId()
+        );
+        if (targetMember.isEmpty()) {
             throw new IllegalArgumentException("Target user is not a member of this club");
         }
 
@@ -134,45 +140,41 @@ public class ClubService {
     }
 
 
-    public void leaveClub(LeaveClubRequest request, Long requesterUserId) throws SQLException {
+    public void leaveClub(LeaveClubRequest request, Long requesterUserId) {
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
         
-        Member membership = memberRepository.findByUserAndClub(requesterUserId, request.getClubId());
+        Optional<Member> membership = memberRepository.findByUserAndClub(requesterUserId, request.getClubId());
         membershipPolicy.requireMember(membership);
         
         memberRepository.deleteByUserAndClub(requesterUserId, request.getClubId());
     }
 
-    public List<ClubMemberResponse> getClubMembers(Long clubId, Long requesterUserId) throws SQLException {
+    public List<ClubMemberResponse> getClubMembers(Long clubId, Long requesterUserId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
         
-        Club club = clubRepository.findById(clubId);
-        if (club == null) {
+        if (clubRepository.findById(clubId).isEmpty()) {
             throw new IllegalArgumentException("Club not found");
         }
         
-        Member membership = memberRepository.findByUserAndClub(requesterUserId, clubId);
+        Optional<Member> membership = memberRepository.findByUserAndClub(requesterUserId, clubId);
         membershipPolicy.requireMember(membership);
         
         return memberRepository.findAllMembersByClubId(clubId);
     }
 
-    public List<ClubResponse> getAllClubs(Long userId) throws SQLException {
+    public List<ClubResponse> getAllClubs(Long userId) {
         return clubRepository.findAllClubResponses(userId);
     }
 
-    public ClubResponse getClub(Long clubId, Long userId) throws SQLException {
+    public ClubResponse getClub(Long clubId, Long userId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
-        ClubResponse club = clubRepository.findClubResponseById(clubId, userId);
-        if (club == null) {
-            throw new IllegalArgumentException("Club not found");
-        }
-        return club;
+        return clubRepository.findClubResponseById(clubId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Club not found"));
     }
 }

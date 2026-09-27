@@ -1,6 +1,6 @@
 package au.jefrin.club.model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class DashboardPost {
     private Long id;
@@ -9,8 +9,8 @@ public class DashboardPost {
     private String description;
     private Long createdBy;
     private Long lastUpdatedBy;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public DashboardPost() {}
 
@@ -32,10 +32,10 @@ public class DashboardPost {
     public Long getLastUpdatedBy() { return lastUpdatedBy; }
     public void setLastUpdatedBy(Long lastUpdatedBy) { this.lastUpdatedBy = lastUpdatedBy; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public Timestamp getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
 

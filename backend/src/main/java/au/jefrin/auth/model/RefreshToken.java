@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,7 +15,7 @@ public class RefreshToken {
     private Long id;
     private String token;
     private Long userId;
-    private Timestamp expiresAt;
+    private LocalDateTime expiresAt;
     private boolean revoked;
 }
 
