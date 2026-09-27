@@ -2,6 +2,7 @@ package au.jefrin.club.repository;
 
 import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.club.model.Club;
+import au.jefrin.club.model.Member;
 
 import java.sql.*;
 import java.util.List;
@@ -13,24 +14,47 @@ import au.jefrin.club.model.Role;
 public class JdbcClubRepository implements ClubRepository {
 
     @Override
-    public Club save(Club club) throws SQLException {
+    public Club createWithFoundingMember(Club club, Member foundingMember) throws SQLException {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            connection.setAutoCommit(false);
+
+            try {
+                insertClub(connection, club);
+                foundingMember.setClubId(club.getId());
+                JdbcMemberRepository.insert(connection, foundingMember);
+                connection.commit();
+                return club;
+            } catch (SQLException | RuntimeException exception) {
+                rollback(connection, exception);
+                throw exception;
+            }
+        }
+    }
+
+    private void insertClub(Connection connection, Club club) throws SQLException {
         String query = "INSERT INTO clubs (name, description, created_by) VALUES (?, ?, ?) RETURNING id, date_of_creation";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, club.getName());
             stmt.setString(2, club.getDescription());
             stmt.setLong(3, club.getCreatedBy());
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     club.setId(rs.getLong("id"));
                     club.setDateOfCreation(rs.getTimestamp("date_of_creation"));
-                    return club;
+                    return;
                 }
             }
         }
         throw new SQLException("Failed to create club");
+    }
+
+    private void rollback(Connection connection, Exception originalException) {
+        try {
+            connection.rollback();
+        } catch (SQLException rollbackException) {
+            originalException.addSuppressed(rollbackException);
+        }
     }
 
     @Override

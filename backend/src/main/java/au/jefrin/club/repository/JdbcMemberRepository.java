@@ -14,14 +14,18 @@ public class JdbcMemberRepository implements MemberRepository {
 
     @Override
     public Member save(Member member) throws SQLException {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            return insert(connection, member);
+        }
+    }
+
+    static Member insert(Connection connection, Member member) throws SQLException {
         String query = "INSERT INTO member (user_id, club_id, role) VALUES (?, ?, ?::member_role) RETURNING id, joined_at";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setLong(1, member.getUserId());
             stmt.setLong(2, member.getClubId());
             stmt.setString(3, member.getRole().name());
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     member.setId(rs.getLong("id"));

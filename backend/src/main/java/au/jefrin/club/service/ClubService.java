@@ -39,13 +39,11 @@ public class ClubService {
         club.setDescription(request.getDescription());
         club.setCreatedBy(userId);
 
-        Club savedClub = clubRepository.save(club);
+        Member foundingMember = new Member();
+        foundingMember.setUserId(userId);
+        foundingMember.setRole(Role.ADMIN);
 
-        Member member = new Member();
-        member.setUserId(userId);
-        member.setClubId(savedClub.getId());
-        member.setRole(Role.ADMIN);
-        memberRepository.save(member);
+        Club savedClub = clubRepository.createWithFoundingMember(club, foundingMember);
         
         return clubRepository.findClubResponseById(savedClub.getId(), userId);
     }

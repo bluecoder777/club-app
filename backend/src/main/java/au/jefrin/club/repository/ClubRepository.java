@@ -2,12 +2,13 @@ package au.jefrin.club.repository;
 
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.model.Club;
+import au.jefrin.club.model.Member;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public interface ClubRepository {
-    Club save(Club club) throws SQLException;
+    Club createWithFoundingMember(Club club, Member foundingMember) throws SQLException;
 
     Club findById(Long id) throws SQLException;
 
