@@ -5,7 +5,6 @@ import au.jefrin.club.service.ClubService;
 import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
 import au.jefrin.common.dto.ApiResponse;
-import au.jefrin.common.dto.EmptyRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @WebServlet("/api/v1/clubs/members")
-public class ListClubMembersController extends AuthenticatedController<EmptyRequest> {
+public class ListClubMembersController extends AuthenticatedController<Void> {
 
     private ClubService clubService;
 
@@ -24,12 +23,7 @@ public class ListClubMembersController extends AuthenticatedController<EmptyRequ
     }
 
     @Override
-    protected Class<EmptyRequest> getRequestClass() {
-        return EmptyRequest.class;
-    }
-
-    @Override
-    protected ApiResponse<?> processAuthenticatedRequest(EmptyRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedGet(HttpServletRequest req, Long userId) throws Exception {
         String clubIdStr = req.getParameter("clubId");
         if (clubIdStr == null || clubIdStr.trim().isEmpty()) {
             throw new IllegalArgumentException("clubId parameter is required");

@@ -26,7 +26,7 @@ public class LeaveClubController extends AuthenticatedController<LeaveClubReques
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(LeaveClubRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedPost(LeaveClubRequest request, HttpServletRequest req, Long userId) throws Exception {
         String pathInfo = req.getPathInfo();
         if (pathInfo != null && pathInfo.length() > 1) {
             String[] parts = pathInfo.substring(1).split("/");

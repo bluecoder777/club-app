@@ -31,46 +31,43 @@ public class DashboardPostController extends AuthenticatedController<DashboardPo
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(DashboardPostPayload request, HttpServletRequest req, Long userId) throws Exception {
-        String method = req.getMethod();
-
-        if ("POST".equalsIgnoreCase(method)) {
-            CreatePostRequest createReq = new CreatePostRequest();
-            createReq.setClubId(request.getClubId());
-            createReq.setTitle(request.getTitle());
-            createReq.setDescription(request.getDescription());
-            
-            DashboardPostResponse response = dashboardService.createPost(createReq, userId);
-            return ApiResponse.success(response);
-            
-        } else if ("PATCH".equalsIgnoreCase(method)) {
-            EditPostRequest editReq = new EditPostRequest();
-            editReq.setPostId(request.getPostId());
-            editReq.setTitle(request.getTitle());
-            editReq.setDescription(request.getDescription());
-            
-            DashboardPostResponse response = dashboardService.editPost(editReq, userId);
-            return ApiResponse.success(response);
-            
-        } else if ("GET".equalsIgnoreCase(method)) {
-            String clubIdStr = req.getParameter("clubId");
-            if (clubIdStr == null || clubIdStr.trim().isEmpty()) {
-                throw new IllegalArgumentException("clubId parameter is required");
-            }
-
-            Long clubId;
-            try {
-                clubId = Long.parseLong(clubIdStr);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid clubId format");
-            }
-
-            List<DashboardPostResponse> posts = dashboardService.listPosts(clubId, userId);
-            return ApiResponse.success(posts);
-            
-        } else {
-            throw new IllegalArgumentException("Unsupported HTTP method for this endpoint");
+    protected ApiResponse<?> processAuthenticatedGet(HttpServletRequest req, Long userId) throws Exception {
+        String clubIdStr = req.getParameter("clubId");
+        if (clubIdStr == null || clubIdStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("clubId parameter is required");
         }
+
+        Long clubId;
+        try {
+            clubId = Long.parseLong(clubIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid clubId format");
+        }
+
+        List<DashboardPostResponse> posts = dashboardService.listPosts(clubId, userId);
+        return ApiResponse.success(posts);
+    }
+
+    @Override
+    protected ApiResponse<?> processAuthenticatedPost(DashboardPostPayload request, HttpServletRequest req, Long userId) throws Exception {
+        CreatePostRequest createReq = new CreatePostRequest();
+        createReq.setClubId(request.getClubId());
+        createReq.setTitle(request.getTitle());
+        createReq.setDescription(request.getDescription());
+
+        DashboardPostResponse response = dashboardService.createPost(createReq, userId);
+        return ApiResponse.success(response);
+    }
+
+    @Override
+    protected ApiResponse<?> processAuthenticatedPatch(DashboardPostPayload request, HttpServletRequest req, Long userId) throws Exception {
+        EditPostRequest editReq = new EditPostRequest();
+        editReq.setPostId(request.getPostId());
+        editReq.setTitle(request.getTitle());
+        editReq.setDescription(request.getDescription());
+
+        DashboardPostResponse response = dashboardService.editPost(editReq, userId);
+        return ApiResponse.success(response);
     }
 }
 

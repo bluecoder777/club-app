@@ -26,7 +26,7 @@ public class JoinClubController extends AuthenticatedController<JoinClubRequest>
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(JoinClubRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedPost(JoinClubRequest request, HttpServletRequest req, Long userId) throws Exception {
         clubService.joinClub(request.getClubId(), userId);
         return ApiResponse.success("Successfully joined the club");
     }

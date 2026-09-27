@@ -29,11 +29,11 @@ public class RegistrationController extends BaseController<RegistrationRequest> 
 
     @Override
     protected int getSuccessStatusCode() {
-        return HttpServletResponse.SC_CREATED; // 201 Created for Registration
+        return HttpServletResponse.SC_CREATED;
     }
 
     @Override
-    protected ApiResponse<?> processRequest(RegistrationRequest request, HttpServletRequest req) throws Exception {
+    protected ApiResponse<?> processPost(RegistrationRequest request, HttpServletRequest req) throws Exception {
         if (!request.isValid()) {
             throw new IllegalArgumentException("Missing required fields (name, email, password)");
         }

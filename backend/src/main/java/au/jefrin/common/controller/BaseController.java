@@ -25,30 +25,51 @@ public abstract class BaseController<T> extends HttpServlet {
         this.objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    protected abstract Class<T> getRequestClass();
+    protected Class<T> getRequestClass() {
+        throw new UnsupportedOperationException();
+    }
 
-    protected abstract ApiResponse<?> processRequest(T request, HttpServletRequest req) throws Exception;
+    protected ApiResponse<?> processGet(HttpServletRequest req) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    protected ApiResponse<?> processPost(T request, HttpServletRequest req) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    protected ApiResponse<?> processPut(T request, HttpServletRequest req) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    protected ApiResponse<?> processPatch(T request, HttpServletRequest req) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    protected ApiResponse<?> processDelete(T request, HttpServletRequest req) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     protected int getSuccessStatusCode() {
         return HttpServletResponse.SC_OK;
     }
 
-    private void processHttp(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void processHttp(HttpServletResponse resp, RequestHandler handler) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
         try {
-            T requestPayload;
-            if (req.getContentLength() > 0) {
-                requestPayload = objectMapper.readValue(req.getInputStream(), getRequestClass());
-            } else {
-                requestPayload = getRequestClass().getDeclaredConstructor().newInstance();
-            }
-            
-            ApiResponse<?> response = processRequest(requestPayload, req);
+            ApiResponse<?> response = handler.handle();
 
             resp.setStatus(getSuccessStatusCode());
             objectMapper.writeValue(resp.getWriter(), response);
+
+        } catch (UnsupportedOperationException e) {
+            resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+            ApiResponse<Void> errorResponse = ApiResponse.error(
+                    HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                    "HTTP method is not supported for this endpoint"
+            );
+            objectMapper.writeValue(resp.getWriter(), errorResponse);
 
         } catch (UnauthorizedException e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -84,11 +105,22 @@ public abstract class BaseController<T> extends HttpServlet {
         }
     }
 
+    private T readRequest(HttpServletRequest req) throws Exception {
+        if (req.getContentLength() > 0) {
+            return objectMapper.readValue(req.getInputStream(), getRequestClass());
+        }
+        return getRequestClass().getDeclaredConstructor().newInstance();
+    }
+
+    @FunctionalInterface
+    private interface RequestHandler {
+        ApiResponse<?> handle() throws Exception;
+    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("PATCH".equalsIgnoreCase(req.getMethod())) {
-            processHttp(req, resp);
+            processHttp(resp, () -> processPatch(readRequest(req), req));
         } else {
             super.service(req, resp);
         }
@@ -96,22 +128,22 @@ public abstract class BaseController<T> extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        processHttp(req, resp);
+        processHttp(resp, () -> processGet(req));
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        processHttp(req, resp);
+        processHttp(resp, () -> processPost(readRequest(req), req));
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        processHttp(req, resp);
+        processHttp(resp, () -> processPut(readRequest(req), req));
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        processHttp(req, resp);
+        processHttp(resp, () -> processDelete(readRequest(req), req));
     }
 
 }

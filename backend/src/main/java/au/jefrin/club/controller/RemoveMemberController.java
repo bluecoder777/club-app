@@ -26,7 +26,7 @@ public class RemoveMemberController extends AuthenticatedController<RemoveMember
     }
 
     @Override
-    protected ApiResponse<?> processAuthenticatedRequest(RemoveMemberRequest request, HttpServletRequest req, Long userId) throws Exception {
+    protected ApiResponse<?> processAuthenticatedDelete(RemoveMemberRequest request, HttpServletRequest req, Long userId) throws Exception {
         String pathInfo = req.getPathInfo();
         if (pathInfo != null && pathInfo.length() > 1) {
             String[] parts = pathInfo.substring(1).split("/");

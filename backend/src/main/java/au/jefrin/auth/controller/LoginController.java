@@ -28,7 +28,7 @@ public class LoginController extends BaseController<LoginRequest> {
     }
 
     @Override
-    protected ApiResponse<?> processRequest(LoginRequest request, HttpServletRequest req) throws Exception {
+    protected ApiResponse<?> processPost(LoginRequest request, HttpServletRequest req) throws Exception {
         if (!request.isValid()) {
             throw new IllegalArgumentException("Missing required fields (email, password)");
         }
