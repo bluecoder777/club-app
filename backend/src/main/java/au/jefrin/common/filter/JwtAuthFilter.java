@@ -11,13 +11,11 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/api/v1/clubs", "/api/v1/clubs/*"})
 public class JwtAuthFilter implements Filter {
 
     public static final String USER_ID_ATTRIBUTE = JwtAuthFilter.class.getName() + ".userId";

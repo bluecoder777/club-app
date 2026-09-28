@@ -56,6 +56,19 @@ public class EnvConfig {
         return Long.parseLong(expiry);
     }
 
+    public static String getFrontendOrigin() {
+        String origin = get("FRONTEND_ORIGIN");
+        if (origin == null || origin.trim().isEmpty()) {
+            return "http://localhost:5173";
+        }
+
+        origin = origin.trim();
+        while (origin.endsWith("/")) {
+            origin = origin.substring(0, origin.length() - 1);
+        }
+        return origin;
+    }
+
     private static String getRequired(String key) {
         String value = get(key);
         if (value == null || value.trim().isEmpty()) {
