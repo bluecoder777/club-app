@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'backend/**'
-      - 'deployment/**'
       - '.github/workflows/deploy-backend.yml'
   workflow_dispatch:
 
@@ -25,8 +24,6 @@ concurrency:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.image.outputs.name }}
 
     steps:
       - name: Checkout repository
@@ -64,24 +61,17 @@ jobs:
     environment: production
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
       - name: Check deployment configuration
         env:
           SSH_HOST: ${{ secrets.GCP_VM_HOST }}
           SSH_USER: ${{ secrets.GCP_VM_USER }}
-          DEPLOY_PATH: ${{ secrets.GCP_DEPLOY_PATH }}
           SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.GCP_SSH_KNOWN_HOSTS }}
-          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         run: |
           test -n "$SSH_HOST"
           test -n "$SSH_USER"
-          test -n "$DEPLOY_PATH"
           test -n "$SSH_PRIVATE_KEY"
           test -n "$SSH_KNOWN_HOSTS"
-          test -n "$GHCR_TOKEN"
 
       - name: Configure SSH
         env:
@@ -94,30 +84,11 @@ jobs:
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Copy production compose file
-        env:
-          SSH_HOST: ${{ secrets.GCP_VM_HOST }}
-          SSH_PORT: ${{ secrets.GCP_SSH_PORT || '22' }}
-          SSH_USER: ${{ secrets.GCP_VM_USER }}
-          DEPLOY_PATH: ${{ secrets.GCP_DEPLOY_PATH }}
-        run: |
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$DEPLOY_PATH'"
-          scp -P "$SSH_PORT" deployment/docker-compose.prod.yml \
-            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/docker-compose.yml"
-
       - name: Deploy backend
         env:
           SSH_HOST: ${{ secrets.GCP_VM_HOST }}
           SSH_PORT: ${{ secrets.GCP_SSH_PORT || '22' }}
           SSH_USER: ${{ secrets.GCP_VM_USER }}
-          DEPLOY_PATH: ${{ secrets.GCP_DEPLOY_PATH }}
-          GHCR_USER: ${{ github.repository_owner }}
-          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
-          BACKEND_IMAGE: ${{ needs.build-and-push.outputs.image }}:release-production
         run: |
-          printf '%s' "$GHCR_TOKEN" | ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-            "docker login ghcr.io -u '$GHCR_USER' --password-stdin"
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "docker pull '$BACKEND_IMAGE'"
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-            "cd '$DEPLOY_PATH' && test -f .env && docker compose up -d --remove-orphans"
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "docker ps --filter name=club-api --filter name=club-db"
+            "cd ~/club && test -f .env && test -f docker-compose.yml && sudo -n docker compose pull backend && sudo -n docker compose up -d --remove-orphans && sudo -n docker compose ps"
