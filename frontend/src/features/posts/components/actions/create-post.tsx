@@ -14,6 +14,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useCreatePost } from '../../api/use-create-post';
 import PostForm from './post-form';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type CreatePostProps = {
   clubId: number;
@@ -32,9 +33,9 @@ export function CreatePost({ clubId }: CreatePostProps) {
         });
         setOpen(false);
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error creating post!',
+          title: getErrorMessage(error, 'Error creating post'),
           type: 'error',
         });
       },

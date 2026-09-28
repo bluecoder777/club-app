@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/toast';
 import { useRemoveClubMember } from '../api/use-remove-club-member';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type RemoveClubMemberProps = {
   clubId: number;
@@ -37,9 +38,9 @@ const RemoveClubMember = ({
           title: 'Member removed successfully!',
         });
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error removing member!',
+          title: getErrorMessage(error, 'Error removing member'),
           type: 'error',
         });
       },

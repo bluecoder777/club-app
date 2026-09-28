@@ -15,6 +15,7 @@ import { Pencil } from 'lucide-react';
 import { useEditPost } from '../../api/use-edit-post';
 import type { DashboardPost } from '../../types';
 import PostForm from './post-form';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type EditPostProps = {
   post: DashboardPost;
@@ -33,9 +34,9 @@ export function EditPost({ post }: EditPostProps) {
         });
         setOpen(false);
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error updating post!',
+          title: getErrorMessage(error, 'Error updating post'),
           type: 'error',
         });
       },
