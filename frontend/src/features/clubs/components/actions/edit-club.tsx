@@ -15,6 +15,7 @@ import { Pencil } from 'lucide-react';
 import { useEditClub } from '../../api/use-edit-club';
 import type { Club } from '../../types';
 import ClubForm from './club-form';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 export function EditClub({ club }: { club: Club }) {
   const [open, setOpen] = useState(false);
@@ -29,9 +30,9 @@ export function EditClub({ club }: { club: Club }) {
         });
         setOpen(false);
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error updating club!',
+          title: getErrorMessage(error, 'Error updating club'),
           type: 'error',
         });
       },

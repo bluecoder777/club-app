@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
 import { useChangeMemberRole } from '../api/use-change-member-role';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type MemberRoleProps = {
   clubId: number;
@@ -40,10 +41,10 @@ export default function MemberRole({
           description: 'Member role has been updated successfully.',
         });
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
           title: 'Failed to update role',
-          description: 'Something went wrong. Please try again.',
+          description: getErrorMessage(error),
           type: 'error',
         });
       },

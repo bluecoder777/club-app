@@ -20,7 +20,7 @@ public class UserService {
 
     public User registerUser(RegistrationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email is already registered");
+            throw new ConflictException("EMAIL_ALREADY_REGISTERED", "Email is already registered");
         }
 
         String hashedPassword = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt(12));

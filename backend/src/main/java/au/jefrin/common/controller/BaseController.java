@@ -83,7 +83,11 @@ public abstract class BaseController<T> extends HttpServlet {
             
         } catch (ConflictException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_CONFLICT, e.getMessage());
+            ApiResponse<Void> errorResponse = ApiResponse.error(
+                    HttpServletResponse.SC_CONFLICT,
+                    e.getErrorKey(),
+                    e.getMessage()
+            );
             objectMapper.writeValue(resp.getWriter(), errorResponse);
 
         } catch (IllegalArgumentException e) {

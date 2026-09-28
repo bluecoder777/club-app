@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 
 import { toast } from '@/components/ui/toast';
 import { useLeaveClub } from '../../api/use-leave-club';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type LeaveClubProps = {
   clubId: number;
@@ -34,9 +35,9 @@ const LeaveClub = ({ clubId, clubName }: LeaveClubProps) => {
           title: 'Successfully left club!',
         });
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error leaving club!',
+          title: getErrorMessage(error, 'Error leaving club'),
           type: 'error',
         });
       },

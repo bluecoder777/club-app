@@ -19,6 +19,7 @@ public class ApiResponse <T> {
     public static class ApiError {
         private String message;
         private Integer code;
+        private String key;
     }
 
     public static <T> ApiResponse<T> success(T data) {
@@ -29,10 +30,15 @@ public class ApiResponse <T> {
     }
 
     public static <T> ApiResponse<T> error(Integer code, String message) {
+        return error(code, null, message);
+    }
+
+    public static <T> ApiResponse<T> error(Integer code, String key, String message) {
         return ApiResponse.<T>builder()
                 .status(ApiStatus.ERROR)
                 .error(ApiError.builder()
                         .code(code)
+                        .key(key)
                         .message(message)
                         .build())
                 .build();

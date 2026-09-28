@@ -9,11 +9,20 @@ import { useNavigate } from 'react-router';
 
 import { useRegister } from '../api/use-register';
 import { registrationSchema, type RegistrationRequest } from '../schema/auth';
-import { getErrorMessage } from '@/utils/get-error-message';
+import { getErrorKey, getErrorMessage } from '@/utils/get-error-message';
 import { toast } from '@/components/ui/toast';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
+  const form = useForm<RegistrationRequest>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      name: '',
+    },
+  });
+
   const { mutate, isPending } = useRegister({
     mutationConfig: {
       onSuccess: () => {
@@ -23,20 +32,21 @@ export const RegisterForm = () => {
         });
         navigate(paths.auth.login.getHref(), { replace: true });
       },
-      onError: (data) => {
+      onError: (error) => {
+        if (getErrorKey(error) === 'EMAIL_ALREADY_REGISTERED') {
+          form.setError(
+            'email',
+            { message: 'An account with this email already exists' },
+            { shouldFocus: true },
+          );
+          return;
+        }
+
         toast.add({
-          title: getErrorMessage(data),
+          title: getErrorMessage(error),
           type: 'error',
         });
       },
-    },
-  });
-  const form = useForm<RegistrationRequest>({
-    resolver: zodResolver(registrationSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      name: '',
     },
   });
 

@@ -14,6 +14,7 @@ import { toast } from '@/components/ui/toast';
 import { useJoinClub } from '../../api/use-join-club';
 import { useNavigate } from 'react-router';
 import { paths } from '@/config/paths';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 type JoinClubProps = {
   clubId: number;
@@ -32,9 +33,9 @@ const JoinClub = ({ clubId, clubName }: JoinClubProps) => {
         });
         navigate(paths.club.getHref(clubId.toString()));
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error joining club!',
+          title: getErrorMessage(error, 'Error joining club'),
           type: 'error',
         });
       },

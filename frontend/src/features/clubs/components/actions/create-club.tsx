@@ -15,6 +15,7 @@ import { useCreateClub } from '../../api/use-create-club';
 import ClubForm from './club-form';
 import { useNavigate } from 'react-router';
 import { paths } from '@/config/paths';
+import { getErrorMessage } from '@/utils/get-error-message';
 
 export function CreateClub() {
   const navigate = useNavigate();
@@ -28,9 +29,9 @@ export function CreateClub() {
         });
         navigate(paths.club.getHref(data.data.id.toString()));
       },
-      onError: () => {
+      onError: (error) => {
         toast.add({
-          title: 'Error creating club!',
+          title: getErrorMessage(error, 'Error creating club'),
           type: 'error',
         });
       },
