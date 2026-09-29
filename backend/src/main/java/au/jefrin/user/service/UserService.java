@@ -18,6 +18,7 @@ public class UserService {
         this.userRepository = Objects.requireNonNull(userRepository, "userRepository must not be null");
     }
 
+    // checks for duplicates before hashing the password
     public User registerUser(RegistrationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("EMAIL_ALREADY_REGISTERED", "Email is already registered");
@@ -29,6 +30,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // keeps login failures vague to avoid exposing accounts
     public User authenticate(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));

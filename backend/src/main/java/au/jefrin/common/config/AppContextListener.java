@@ -8,6 +8,7 @@ import org.flywaydb.core.Flyway;
 @WebListener
 public class AppContextListener implements ServletContextListener {
 
+    // starts the connection pool and applies pending migrations
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {

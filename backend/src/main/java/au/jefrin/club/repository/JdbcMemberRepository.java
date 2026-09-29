@@ -141,6 +141,7 @@ public class JdbcMemberRepository implements MemberRepository {
         });
     }
 
+    // promotes the successor and removes the old admin as one unit
     @Override
     public void handOverAdministrationAndRemove(Long departingUserId, Long successorUserId, Long clubId) {
         JdbcOperation.execute("Failed to hand over club administration", () -> {

@@ -23,6 +23,7 @@ public class JwtAuthFilter implements Filter {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
+    // validates access tokens before protected controllers run
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {

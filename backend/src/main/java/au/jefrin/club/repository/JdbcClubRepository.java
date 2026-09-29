@@ -19,6 +19,7 @@ import java.util.Optional;
 
 public class JdbcClubRepository implements ClubRepository {
 
+    // saves the club and first admin as one unit
     @Override
     public Club createWithFoundingMember(Club club, Member foundingMember) {
         return JdbcOperation.execute("Failed to create club with founding member", () -> {
@@ -129,6 +130,7 @@ public class JdbcClubRepository implements ClubRepository {
                 .build();
     }
 
+    // loads one club with membership details for the current user
     @Override
     public Optional<ClubResponse> findClubResponseById(Long id, Long currentUserId) {
         return JdbcOperation.execute("Failed to load club response", () -> {
@@ -157,6 +159,7 @@ public class JdbcClubRepository implements ClubRepository {
         });
     }
 
+    // lists clubs with membership details for the current user
     @Override
     public List<ClubResponse> findAllClubResponses(Long currentUserId) {
         return JdbcOperation.execute("Failed to list clubs", () -> {

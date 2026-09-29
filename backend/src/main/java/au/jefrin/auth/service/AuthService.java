@@ -35,6 +35,7 @@ public class AuthService {
         );
     }
 
+    // signs in the user and replaces old sessions
     public LoginResponse login(LoginRequest request) {
         User user = userService.authenticate(request);
 
@@ -49,6 +50,7 @@ public class AuthService {
                 .build();
     }
 
+    // checks and rotates a single use refresh token
     public TokenResponse refreshTokens(String tokenString) {
         if (!JwtUtil.isRefreshTokenValid(tokenString)) {
             throw new UnauthorizedException("Invalid or expired refresh token");
@@ -64,7 +66,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // Refresh tokens are single-use.
+        // revoke refresh tokens on single use
         refreshTokenRepository.revokeToken(tokenString);
 
         return generateTokensForUser(user);
@@ -80,6 +82,7 @@ public class AuthService {
                 .ifPresent(token -> refreshTokenRepository.revokeToken(refreshToken));
     }
 
+    // creates both tokens and stores the refresh token
     private TokenResponse generateTokensForUser(User user) {
         String accessToken = JwtUtil.generateAccessToken(user);
         String refreshTokenString = JwtUtil.generateRefreshToken(user);
@@ -103,6 +106,7 @@ public class AuthService {
     }
 
 
+    // creates the user and starts their first session
     public LoginResponse register(RegistrationRequest request) {
         User user = userService.registerUser(request);
 

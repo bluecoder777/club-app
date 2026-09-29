@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 public class JdbcEventTicketRepository implements EventTicketRepository {
 
+    // locks the event while checking membership and capacity
     @Override
     public TicketReservationResult reserve(Long eventId, Long userId) {
         return JdbcOperation.execute("Failed to reserve event ticket", () -> {

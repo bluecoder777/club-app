@@ -27,6 +27,7 @@ public class ClubService {
         this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
+    // creates the club and first admin in one transaction
     public ClubResponse createClub(CreateClubRequest request, Long userId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Club name is required");
@@ -47,6 +48,7 @@ public class ClubService {
                 .orElseThrow(() -> new DataAccessException("Created club could not be loaded"));
     }
 
+    // makes the first club member an admin
     public void joinClub(Long clubId, Long userId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
@@ -133,6 +135,7 @@ public class ClubService {
     }
 
 
+    // hands admin rights over before the current admin leaves
     public void leaveClub(LeaveClubRequest request, Long requesterUserId) {
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
