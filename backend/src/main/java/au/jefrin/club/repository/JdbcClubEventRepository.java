@@ -113,6 +113,7 @@ public class JdbcClubEventRepository implements ClubEventRepository {
         });
     }
 
+    // adds ticket counts and the current users booking state
     private String responseQuery() {
         return "SELECT e.id, e.club_id, e.name, e.description, e.venue, e.event_time, e.capacity, " +
                 "COUNT(t.id) AS tickets_issued, " +

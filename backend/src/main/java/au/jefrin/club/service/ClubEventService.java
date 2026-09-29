@@ -38,6 +38,7 @@ public class ClubEventService {
         this.membershipPolicy = Objects.requireNonNull(membershipPolicy, "membershipPolicy must not be null");
     }
 
+    // only admins can create events
     public ClubEventResponse createEvent(CreateEventRequest request, Long userId) {
         validateCreateRequest(request);
         if (clubRepository.findById(request.getClubId()).isEmpty()) {
@@ -72,6 +73,7 @@ public class ClubEventService {
         return eventRepository.findAllResponsesByClubId(clubId, userId);
     }
 
+    // maps booking outcomes to business errors
     public ClubEventResponse reserveTicket(Long eventId, Long userId) {
         ClubEvent event = requireEvent(eventId);
         membershipPolicy.requireMember(findMembership(userId, event.getClubId()));
@@ -114,6 +116,7 @@ public class ClubEventService {
         return memberRepository.findByUserAndClub(userId, clubId);
     }
 
+    // checks event rules before any database work
     private void validateCreateRequest(CreateEventRequest request) {
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");

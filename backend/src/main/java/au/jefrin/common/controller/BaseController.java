@@ -57,6 +57,7 @@ public abstract class BaseController<T> extends HttpServlet {
         return HttpServletResponse.SC_OK;
     }
 
+    // keeps api responses and error mapping consistent
     private void processHttp(HttpServletResponse resp, RequestHandler handler) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
@@ -120,6 +121,7 @@ public abstract class BaseController<T> extends HttpServlet {
         return getRequestClass().getDeclaredConstructor().newInstance();
     }
 
+    // handles patch requests outside the default servlet methods
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if ("PATCH".equalsIgnoreCase(req.getMethod())) {

@@ -44,6 +44,7 @@ public class DashboardService {
         membershipPolicy.requireMember(requester);
     }
 
+    // only admins can publish club posts
     public DashboardPostResponse createPost(CreatePostRequest request, Long userId) {
         if (request.getClubId() == null || request.getTitle() == null || request.getTitle().trim().isEmpty() ||
                 request.getDescription() == null || request.getDescription().trim().isEmpty()) {
@@ -68,6 +69,7 @@ public class DashboardService {
                 .orElseThrow(() -> new DataAccessException("Created dashboard post could not be loaded"));
     }
 
+    // only admins can edit existing club posts
     public DashboardPostResponse editPost(EditPostRequest request, Long userId) {
         if (request.getPostId() == null || request.getTitle() == null || request.getTitle().trim().isEmpty() ||
                 request.getDescription() == null || request.getDescription().trim().isEmpty()) {
@@ -89,6 +91,7 @@ public class DashboardService {
                 .orElseThrow(() -> new DataAccessException("Updated dashboard post could not be loaded"));
     }
 
+    // keeps club posts private to members
     public List<DashboardPostResponse> listPosts(Long clubId, Long userId) {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");

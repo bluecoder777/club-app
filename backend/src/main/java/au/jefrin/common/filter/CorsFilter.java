@@ -12,6 +12,7 @@ public class CorsFilter implements Filter {
     private static final String ALLOWED_METHODS = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
     private static final String ALLOWED_HEADERS = "Authorization, Content-Type, Accept";
 
+    // allows the configured frontend and handles preflight requests
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
