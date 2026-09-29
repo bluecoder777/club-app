@@ -5,8 +5,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import {
-  Controller,
   type Control,
+  Controller,
   type ControllerRenderProps,
   type FieldPath,
   type FieldValues,

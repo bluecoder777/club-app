@@ -1,4 +1,5 @@
 package au.jefrin.auth.dto;
+
 import au.jefrin.user.dto.UserResponse;
 
 import lombok.Builder;

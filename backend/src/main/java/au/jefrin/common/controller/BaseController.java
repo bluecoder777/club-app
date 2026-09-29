@@ -1,10 +1,9 @@
 package au.jefrin.common.controller;
 
+import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.common.exception.ConflictException;
 import au.jefrin.common.exception.DataAccessException;
 import au.jefrin.common.exception.UnauthorizedException;
-
-import au.jefrin.common.dto.ApiResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +79,7 @@ public abstract class BaseController<T> extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             objectMapper.writeValue(resp.getWriter(), errorResponse);
-            
+
         } catch (ConflictException e) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             ApiResponse<Void> errorResponse = ApiResponse.error(
@@ -94,18 +93,18 @@ public abstract class BaseController<T> extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             objectMapper.writeValue(resp.getWriter(), errorResponse);
-            
+
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_BAD_REQUEST, "Malformed JSON request payload");
             objectMapper.writeValue(resp.getWriter(), errorResponse);
-            
+
         } catch (DataAccessException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             ApiResponse<Void> errorResponse = ApiResponse.error(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error occurred");
             objectMapper.writeValue(resp.getWriter(), errorResponse);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -119,11 +118,6 @@ public abstract class BaseController<T> extends HttpServlet {
             return objectMapper.readValue(req.getInputStream(), getRequestClass());
         }
         return getRequestClass().getDeclaredConstructor().newInstance();
-    }
-
-    @FunctionalInterface
-    private interface RequestHandler {
-        ApiResponse<?> handle() throws Exception;
     }
 
     @Override
@@ -153,6 +147,11 @@ public abstract class BaseController<T> extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         processHttp(resp, () -> processDelete(readRequest(req), req));
+    }
+
+    @FunctionalInterface
+    private interface RequestHandler {
+        ApiResponse<?> handle() throws Exception;
     }
 
 }

@@ -55,7 +55,9 @@ export function CreateEvent({ clubId }: CreateEventProps) {
         />
         <DialogFooter>
           <DialogClose
-            render={<Button variant="outline" disabled={createEvent.isPending} />}
+            render={
+              <Button variant="outline" disabled={createEvent.isPending} />
+            }
           >
             Cancel
           </DialogClose>

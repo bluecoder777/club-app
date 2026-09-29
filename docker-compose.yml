@@ -10,7 +10,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: 
+    build:
       context: backend
       dockerfile: Dockerfile
     container_name: club-be
@@ -22,7 +22,7 @@ services:
       - db
 
   frontend:
-    build: 
+    build:
       context: frontend
       dockerfile: Dockerfile
     container_name: club-fe

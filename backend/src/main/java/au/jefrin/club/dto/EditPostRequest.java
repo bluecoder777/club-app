@@ -10,6 +10,7 @@ public class EditPostRequest {
     private String title;
     private String description;
 
-    public EditPostRequest() {}
+    public EditPostRequest() {
+    }
 }
 

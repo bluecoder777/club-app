@@ -49,8 +49,7 @@ jobs:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: pnpm build
 
-      # GitHub Pages has no SPA route fallback. Serving the app for unknown
-      # paths lets React Router handle URLs opened or refreshed directly.
+      # Support direct navigation to client-side routes.
       - name: Add SPA fallback
         run: cp frontend/dist/index.html frontend/dist/404.html
 

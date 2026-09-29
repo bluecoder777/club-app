@@ -1,28 +1,21 @@
 package au.jefrin.club.repository;
 
+import au.jefrin.club.dto.ClubMemberResponse;
+import au.jefrin.club.model.Member;
 import au.jefrin.club.model.Role;
-
 import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.common.repository.JdbcOperation;
-import au.jefrin.club.model.Member;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import au.jefrin.club.dto.ClubMemberResponse;
 
 public class JdbcMemberRepository implements MemberRepository {
-
-    @Override
-    public Member save(Member member) {
-        return JdbcOperation.execute("Failed to save club member", () -> {
-            try (Connection connection = DatabaseConfig.getConnection()) {
-                return insert(connection, member);
-            }
-        });
-    }
 
     static Member insert(Connection connection, Member member) throws SQLException {
         String query = "INSERT INTO member (user_id, club_id, role) VALUES (?, ?, ?::member_role) RETURNING id, joined_at";
@@ -40,6 +33,15 @@ public class JdbcMemberRepository implements MemberRepository {
             }
         }
         throw new SQLException("Failed to add member");
+    }
+
+    @Override
+    public Member save(Member member) {
+        return JdbcOperation.execute("Failed to save club member", () -> {
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                return insert(connection, member);
+            }
+        });
     }
 
     @Override
@@ -100,9 +102,9 @@ public class JdbcMemberRepository implements MemberRepository {
     public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) {
         return JdbcOperation.execute("Failed to list club members", () -> {
             String query = "SELECT m.id, m.user_id, u.name, u.email, m.role, m.joined_at " +
-                           "FROM member m JOIN \"user\" u ON m.user_id = u.id " +
-                           "WHERE m.club_id = ? " +
-                           "ORDER BY m.joined_at ASC";
+                    "FROM member m JOIN \"user\" u ON m.user_id = u.id " +
+                    "WHERE m.club_id = ? " +
+                    "ORDER BY m.joined_at ASC";
 
             List<ClubMemberResponse> members = new ArrayList<>();
             try (Connection conn = DatabaseConfig.getConnection();
@@ -135,6 +137,42 @@ public class JdbcMemberRepository implements MemberRepository {
                 stmt.setLong(2, userId);
                 stmt.setLong(3, clubId);
                 stmt.executeUpdate();
+            }
+        });
+    }
+
+    @Override
+    public void handOverAdministrationAndRemove(Long departingUserId, Long successorUserId, Long clubId) {
+        JdbcOperation.execute("Failed to hand over club administration", () -> {
+            try (Connection connection = DatabaseConfig.getConnection()) {
+                connection.setAutoCommit(false);
+
+                try {
+                    String promoteQuery = "UPDATE member SET role = 'ADMIN'::member_role WHERE user_id = ? AND club_id = ?";
+                    try (PreparedStatement promote = connection.prepareStatement(promoteQuery)) {
+                        promote.setLong(1, successorUserId);
+                        promote.setLong(2, clubId);
+                        if (promote.executeUpdate() != 1) {
+                            throw new SQLException("The selected successor is no longer a club member");
+                        }
+                    }
+
+                    String leaveQuery = "DELETE FROM member WHERE user_id = ? AND club_id = ?";
+                    try (PreparedStatement leave = connection.prepareStatement(leaveQuery)) {
+                        leave.setLong(1, departingUserId);
+                        leave.setLong(2, clubId);
+                        if (leave.executeUpdate() != 1) {
+                            throw new SQLException("The departing admin is no longer a club member");
+                        }
+                    }
+
+                    connection.commit();
+                } catch (SQLException exception) {
+                    connection.rollback();
+                    throw exception;
+                } finally {
+                    connection.setAutoCommit(true);
+                }
             }
         });
     }

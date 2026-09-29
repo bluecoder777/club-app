@@ -2,6 +2,9 @@ package au.jefrin.common.config;
 
 public class EnvConfig {
 
+    private static final long DEFAULT_ACCESS_EXPIRY_MS = 900_000;
+    private static final long DEFAULT_REFRESH_EXPIRY_MS = 604_800_000;
+
     public static String get(String key) {
         return System.getenv(key);
     }
@@ -43,7 +46,7 @@ public class EnvConfig {
     public static long getJwtAccessExpiry() {
         String expiry = get("JWT_ACCESS_EXPIRY");
         if (expiry == null || expiry.trim().isEmpty()) {
-            return 900000; // Default: 15 minutes in ms
+            return DEFAULT_ACCESS_EXPIRY_MS;
         }
         return Long.parseLong(expiry);
     }
@@ -51,7 +54,7 @@ public class EnvConfig {
     public static long getJwtRefreshExpiry() {
         String expiry = get("JWT_REFRESH_EXPIRY");
         if (expiry == null || expiry.trim().isEmpty()) {
-            return 604800000; // Default: 7 days in ms
+            return DEFAULT_REFRESH_EXPIRY_MS;
         }
         return Long.parseLong(expiry);
     }

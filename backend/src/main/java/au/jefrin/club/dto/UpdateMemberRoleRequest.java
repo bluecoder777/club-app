@@ -7,14 +7,30 @@ public class UpdateMemberRoleRequest {
     private Long targetUserId;
     private Role role;
 
-    public UpdateMemberRoleRequest() {}
+    public UpdateMemberRoleRequest() {
+    }
 
-    public Long getClubId() { return clubId; }
-    public void setClubId(Long clubId) { this.clubId = clubId; }
+    public Long getClubId() {
+        return clubId;
+    }
 
-    public Long getTargetUserId() { return targetUserId; }
-    public void setTargetUserId(Long targetUserId) { this.targetUserId = targetUserId; }
+    public void setClubId(Long clubId) {
+        this.clubId = clubId;
+    }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public Long getTargetUserId() {
+        return targetUserId;
+    }
+
+    public void setTargetUserId(Long targetUserId) {
+        this.targetUserId = targetUserId;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

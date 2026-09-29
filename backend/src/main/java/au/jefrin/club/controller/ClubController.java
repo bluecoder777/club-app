@@ -1,14 +1,15 @@
 package au.jefrin.club.controller;
 
-import au.jefrin.common.controller.AuthenticatedController;
-import au.jefrin.club.dto.CreateClubRequest;
-import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.club.dto.ClubResponse;
+import au.jefrin.club.dto.CreateClubRequest;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.common.config.ServiceFactory;
+import au.jefrin.common.controller.AuthenticatedController;
+import au.jefrin.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 
 @WebServlet(urlPatterns = {"/api/v1/clubs", "/api/v1/clubs/*"})

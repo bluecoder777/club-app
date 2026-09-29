@@ -3,7 +3,7 @@ import { TextAreaFormField } from '@/components/form/text-area-form-field';
 import { FieldGroup } from '@/components/ui/field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { postSchema, type PostFormData } from '../../schema/post';
+import { type PostFormData, postSchema } from '../../schema/post';
 
 const PostForm = ({
   onSubmit,

@@ -9,20 +9,46 @@ public class Member {
     private Role role;
     private LocalDateTime joinedAt;
 
-    public Member() {}
+    public Member() {
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Long getClubId() { return clubId; }
-    public void setClubId(Long clubId) { this.clubId = clubId; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    public LocalDateTime getJoinedAt() { return joinedAt; }
-    public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
+    public Long getClubId() {
+        return clubId;
+    }
+
+    public void setClubId(Long clubId) {
+        this.clubId = clubId;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
 }

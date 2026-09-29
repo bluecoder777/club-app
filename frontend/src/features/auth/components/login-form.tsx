@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import { useLogin } from '../api/use-login';
-import { loginSchema, type LoginRequest } from '../schema/auth';
+import { type LoginRequest, loginSchema } from '../schema/auth';
 import { useAuth } from './auth-provider';
 import { getErrorMessage } from '@/utils/get-error-message';
 

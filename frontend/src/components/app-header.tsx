@@ -6,7 +6,7 @@ export const AppHeader = () => {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-lg font-semibold tracking-tight">Club House</span>
+        <span className="text-lg font-semibold tracking-tight">{APP_NAME}</span>
       </div>
 
       <NavUser
@@ -18,3 +18,4 @@ export const AppHeader = () => {
     </div>
   );
 };
+import { APP_NAME } from '@/config/app';

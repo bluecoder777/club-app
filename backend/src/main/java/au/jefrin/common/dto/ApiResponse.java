@@ -8,19 +8,10 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ApiResponse <T> {
+public class ApiResponse<T> {
     private ApiStatus status;
     private T data;
     private ApiError error;
-
-    @Getter
-    @Builder
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class ApiError {
-        private String message;
-        private Integer code;
-        private String key;
-    }
 
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
@@ -42,6 +33,15 @@ public class ApiResponse <T> {
                         .message(message)
                         .build())
                 .build();
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ApiError {
+        private String message;
+        private Integer code;
+        private String key;
     }
 
 }

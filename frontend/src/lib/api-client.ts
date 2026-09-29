@@ -1,4 +1,5 @@
 import Axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { env } from '@/config/env';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
@@ -6,8 +7,6 @@ declare module 'axios' {
     skipAuth?: boolean;
   }
 }
-
-import { env } from '@/config/env';
 
 type AuthCallbacks = {
   getAccessToken: () => string | null;
