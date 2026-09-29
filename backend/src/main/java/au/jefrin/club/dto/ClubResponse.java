@@ -1,10 +1,11 @@
 package au.jefrin.club.dto;
 
+import au.jefrin.club.model.Role;
 import au.jefrin.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
-import au.jefrin.club.model.Role;
 
 @Getter
 @Builder

@@ -56,9 +56,7 @@ const RemoveClubMember = ({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger
-        render={<Button variant="destructive" size="sm" />}
-      >
+      <AlertDialogTrigger render={<Button variant="destructive" size="sm" />}>
         Remove
       </AlertDialogTrigger>
 

@@ -1,10 +1,10 @@
 package au.jefrin.club.controller;
 
 import au.jefrin.club.dto.LeaveClubRequest;
-import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
+import au.jefrin.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ public class LeaveClubController extends AuthenticatedController<LeaveClubReques
                 request.setClubId(Long.valueOf(parts[0]));
             }
         }
-        
+
         clubService.leaveClub(request, userId);
         return ApiResponse.success("Successfully left the club");
     }

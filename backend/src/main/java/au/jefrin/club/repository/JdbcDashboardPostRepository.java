@@ -1,16 +1,16 @@
 package au.jefrin.club.repository;
 
+import au.jefrin.club.dto.DashboardPostResponse;
+import au.jefrin.club.model.DashboardPost;
 import au.jefrin.common.config.DatabaseConfig;
 import au.jefrin.common.repository.JdbcOperation;
-import au.jefrin.club.model.DashboardPost;
+import au.jefrin.user.dto.UserResponse;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import au.jefrin.club.dto.DashboardPostResponse;
-import au.jefrin.user.dto.UserResponse;
 
 public class JdbcDashboardPostRepository implements DashboardPostRepository {
 
@@ -18,7 +18,7 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
     public DashboardPost save(DashboardPost post) {
         return JdbcOperation.execute("Failed to save dashboard post", () -> {
             String query = "INSERT INTO dashboard_post (club_id, title, description, created_by, last_updated_by) " +
-                           "VALUES (?, ?, ?, ?, ?) RETURNING id, created_at, updated_at";
+                    "VALUES (?, ?, ?, ?, ?) RETURNING id, created_at, updated_at";
 
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -50,7 +50,7 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
     public Optional<DashboardPost> findById(Long id) {
         return JdbcOperation.execute("Failed to find dashboard post", () -> {
             String query = "SELECT id, club_id, title, description, created_by, last_updated_by, created_at, updated_at " +
-                           "FROM dashboard_post WHERE id = ?";
+                    "FROM dashboard_post WHERE id = ?";
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setLong(1, id);
@@ -80,7 +80,7 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
     public void update(DashboardPost post) {
         JdbcOperation.execute("Failed to update dashboard post", () -> {
             String query = "UPDATE dashboard_post SET title = ?, description = ?, last_updated_by = ?, updated_at = CURRENT_TIMESTAMP " +
-                           "WHERE id = ?";
+                    "WHERE id = ?";
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, post.getTitle());
@@ -98,7 +98,7 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
                 .name(rs.getString("created_by_name"))
                 .email(rs.getString("created_by_email"))
                 .build();
-                
+
         UserResponse updatedBy = null;
         if (rs.getObject("updated_by_id") != null) {
             updatedBy = UserResponse.builder()
@@ -124,12 +124,12 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
     public Optional<DashboardPostResponse> findPostResponseById(Long id) {
         return JdbcOperation.execute("Failed to load dashboard post response", () -> {
             String query = "SELECT dp.id, dp.club_id, dp.title, dp.description, dp.created_at, dp.updated_at, " +
-                           "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                           "ub.id as updated_by_id, ub.name as updated_by_name, ub.email as updated_by_email " +
-                           "FROM dashboard_post dp " +
-                           "JOIN \"user\" cb ON dp.created_by = cb.id " +
-                           "LEFT JOIN \"user\" ub ON dp.last_updated_by = ub.id " +
-                           "WHERE dp.id = ?";
+                    "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                    "ub.id as updated_by_id, ub.name as updated_by_name, ub.email as updated_by_email " +
+                    "FROM dashboard_post dp " +
+                    "JOIN \"user\" cb ON dp.created_by = cb.id " +
+                    "LEFT JOIN \"user\" ub ON dp.last_updated_by = ub.id " +
+                    "WHERE dp.id = ?";
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setLong(1, id);
@@ -147,12 +147,12 @@ public class JdbcDashboardPostRepository implements DashboardPostRepository {
     public List<DashboardPostResponse> findAllPostResponsesByClubId(Long clubId) {
         return JdbcOperation.execute("Failed to list dashboard posts", () -> {
             String query = "SELECT dp.id, dp.club_id, dp.title, dp.description, dp.created_at, dp.updated_at, " +
-                           "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                           "ub.id as updated_by_id, ub.name as updated_by_name, ub.email as updated_by_email " +
-                           "FROM dashboard_post dp " +
-                           "JOIN \"user\" cb ON dp.created_by = cb.id " +
-                           "LEFT JOIN \"user\" ub ON dp.last_updated_by = ub.id " +
-                           "WHERE dp.club_id = ? ORDER BY dp.created_at DESC";
+                    "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                    "ub.id as updated_by_id, ub.name as updated_by_name, ub.email as updated_by_email " +
+                    "FROM dashboard_post dp " +
+                    "JOIN \"user\" cb ON dp.created_by = cb.id " +
+                    "LEFT JOIN \"user\" ub ON dp.last_updated_by = ub.id " +
+                    "WHERE dp.club_id = ? ORDER BY dp.created_at DESC";
             List<DashboardPostResponse> posts = new ArrayList<>();
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {

@@ -3,7 +3,7 @@ import { TextAreaFormField } from '@/components/form/text-area-form-field';
 import { FieldGroup } from '@/components/ui/field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { eventSchema, type EventFormData } from '../../schema/event';
+import { type EventFormData, eventSchema } from '../../schema/event';
 
 type EventFormProps = {
   onSubmit: (data: EventFormData) => void;

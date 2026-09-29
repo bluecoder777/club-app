@@ -1,13 +1,13 @@
 package au.jefrin.auth.controller;
-import au.jefrin.common.controller.BaseController;
 
 import au.jefrin.auth.dto.LogoutRequest;
-import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.auth.service.AuthService;
 import au.jefrin.common.config.ServiceFactory;
+import au.jefrin.common.controller.BaseController;
+import au.jefrin.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
 
 @WebServlet("/api/v1/logout")
 public class LogoutController extends BaseController<LogoutRequest> {
@@ -32,7 +32,7 @@ public class LogoutController extends BaseController<LogoutRequest> {
         }
 
         authService.logout(request.getRefreshToken());
-        
+
         return ApiResponse.success("Logged out successfully");
     }
 }

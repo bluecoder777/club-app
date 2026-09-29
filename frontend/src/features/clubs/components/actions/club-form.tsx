@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { clubSchema, type ClubFormData } from '../../schema/club';
+import { type ClubFormData, clubSchema } from '../../schema/club';
 import { InputFormField } from '@/components/form/input-form-field';
 import { FieldGroup } from '@/components/ui/field';
 import { TextAreaFormField } from '@/components/form/text-area-form-field';

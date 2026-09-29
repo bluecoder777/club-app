@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { APP_NAME } from '@/config/app';
 import { paths } from '@/config/paths';
 import { permissions } from '@/utils/permissions';
 import { Navigate } from 'react-router';
@@ -7,6 +8,7 @@ import { useClub } from '../../api/use-club';
 import { EditClub } from '../actions/edit-club';
 import LeaveClub from '../actions/leave-club';
 import { cn } from 'cn';
+import { useEffect } from 'react';
 
 type ClubDetailsHeaderProps = {
   clubId: number;
@@ -14,6 +16,14 @@ type ClubDetailsHeaderProps = {
 
 const ClubDetailsHeader = ({ clubId }: ClubDetailsHeaderProps) => {
   const clubQuery = useClub({ clubId });
+
+  useEffect(() => {
+    const clubName = clubQuery.data?.data.name;
+
+    if (clubName) {
+      document.title = `${clubName} | ${APP_NAME}`;
+    }
+  }, [clubQuery.data?.data.name]);
 
   if (clubQuery.isLoading) {
     return <ClubDetailsHeaderSkeleton />;
@@ -68,7 +78,12 @@ const ClubDetailsHeader = ({ clubId }: ClubDetailsHeaderProps) => {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <LeaveClub clubId={club.id} clubName={club.name} />
+          <LeaveClub
+            clubId={club.id}
+            clubName={club.name}
+            currentUserRole={club.currentUserRole}
+            memberCount={club.memberCount}
+          />
           {canEdit && <EditClub club={club} />}
         </div>
       </div>

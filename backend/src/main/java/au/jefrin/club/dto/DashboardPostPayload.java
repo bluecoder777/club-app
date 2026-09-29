@@ -11,6 +11,7 @@ public class DashboardPostPayload {
     private String title;
     private String description;
 
-    public DashboardPostPayload() {}
+    public DashboardPostPayload() {
+    }
 }
 

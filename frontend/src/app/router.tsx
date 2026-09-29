@@ -1,10 +1,20 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Outlet } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 
 import { MainErrorFallback } from '@/components/errors/main';
 import { paths } from '@/config/paths';
 import { AppLayout } from './layout';
 import { RequireAuth } from '@/features/auth/components/require-auth';
+import { DocumentTitle } from './document-title';
+
+const RootRoute = () => {
+  return (
+    <>
+      <DocumentTitle />
+      <Outlet />
+    </>
+  );
+};
 
 const ProtectedAppLayout = () => {
   return (
@@ -25,39 +35,50 @@ const lazyLoad = <T extends Record<string, unknown>>(
 const createAppRouter = () =>
   createBrowserRouter([
     {
-      path: paths.auth.login.path,
-      lazy: () =>
-        lazyLoad(() => import('../features/auth/routes/login'), 'Login'),
-    },
-    {
-      path: paths.auth.register.path,
-      lazy: () =>
-        lazyLoad(() => import('../features/auth/routes/register'), 'Register'),
-    },
-    {
-      path: paths.root.path,
-      ErrorBoundary: MainErrorFallback,
-      Component: ProtectedAppLayout,
+      Component: RootRoute,
       children: [
         {
-          index: true,
+          path: paths.auth.login.path,
+          lazy: () =>
+            lazyLoad(() => import('../features/auth/routes/login'), 'Login'),
+        },
+        {
+          path: paths.auth.register.path,
           lazy: () =>
             lazyLoad(
-              () => import('../features/clubs/routes/clubs'),
-              'ClubsRoute',
+              () => import('../features/auth/routes/register'),
+              'Register',
             ),
         },
         {
-          path: paths.club.path,
+          path: paths.root.path,
+          ErrorBoundary: MainErrorFallback,
+          Component: ProtectedAppLayout,
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                lazyLoad(
+                  () => import('../features/clubs/routes/clubs'),
+                  'ClubsRoute',
+                ),
+            },
+            {
+              path: paths.club.path,
+              lazy: () =>
+                lazyLoad(() => import('../features/clubs/routes/club'), 'Club'),
+            },
+          ],
+        },
+        {
+          path: '*',
           lazy: () =>
-            lazyLoad(() => import('../features/clubs/routes/club'), 'Club'),
+            lazyLoad(
+              () => import('../components/errors/not-found'),
+              'NotFound',
+            ),
         },
       ],
-    },
-    {
-      path: '*',
-      lazy: () =>
-        lazyLoad(() => import('../components/errors/not-found'), 'NotFound'),
     },
   ]);
 

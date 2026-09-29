@@ -1,26 +1,25 @@
 package au.jefrin.auth.service;
 
-import au.jefrin.auth.dto.RegistrationRequest;
-import au.jefrin.common.exception.UnauthorizedException;
-import au.jefrin.auth.dto.TokenResponse;
-
-import au.jefrin.common.config.EnvConfig;
 import au.jefrin.auth.dto.LoginRequest;
 import au.jefrin.auth.dto.LoginResponse;
-import au.jefrin.user.dto.UserResponse;
+import au.jefrin.auth.dto.RegistrationRequest;
+import au.jefrin.auth.dto.TokenResponse;
 import au.jefrin.auth.model.RefreshToken;
-import au.jefrin.user.model.User;
 import au.jefrin.auth.repository.RefreshTokenRepository;
-import au.jefrin.user.repository.UserRepository;
+import au.jefrin.common.config.EnvConfig;
+import au.jefrin.common.exception.UnauthorizedException;
 import au.jefrin.common.util.JwtUtil;
-
+import au.jefrin.user.dto.UserResponse;
+import au.jefrin.user.model.User;
+import au.jefrin.user.repository.UserRepository;
 import au.jefrin.user.service.UserService;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class AuthService {
-    
+
     private final UserService userService;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -42,7 +41,7 @@ public class AuthService {
         refreshTokenRepository.revokeAllUserTokens(user.getId());
 
         TokenResponse tokenResponse = generateTokensForUser(user);
-        
+
         return LoginResponse.builder()
                 .accessToken(tokenResponse.getAccessToken())
                 .refreshToken(tokenResponse.getRefreshToken())
@@ -65,7 +64,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // Rotate refresh tokens so each token can only be used once.
+        // Refresh tokens are single-use.
         refreshTokenRepository.revokeToken(tokenString);
 
         return generateTokensForUser(user);
@@ -75,7 +74,7 @@ public class AuthService {
         if (refreshToken == null || refreshToken.trim().isEmpty()) {
             throw new IllegalArgumentException("Refresh token is required for logout");
         }
-        
+
         refreshTokenRepository.findByToken(refreshToken)
                 .filter(token -> !token.isRevoked())
                 .ifPresent(token -> refreshTokenRepository.revokeToken(refreshToken));
@@ -104,12 +103,11 @@ public class AuthService {
     }
 
 
-
     public LoginResponse register(RegistrationRequest request) {
         User user = userService.registerUser(request);
 
         TokenResponse tokenResponse = generateTokensForUser(user);
-        
+
         return LoginResponse.builder()
                 .accessToken(tokenResponse.getAccessToken())
                 .refreshToken(tokenResponse.getRefreshToken())

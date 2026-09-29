@@ -1,9 +1,10 @@
 package au.jefrin.club.dto;
 
+import au.jefrin.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
-import au.jefrin.user.dto.UserResponse;
 
 @Getter
 @Builder

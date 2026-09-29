@@ -1,25 +1,18 @@
 package au.jefrin.club.service;
 
-import au.jefrin.club.dto.EditClubRequest;
-import au.jefrin.club.dto.LeaveClubRequest;
-import au.jefrin.club.dto.UpdateMemberRoleRequest;
-import au.jefrin.club.dto.RemoveMemberRequest;
-
-import au.jefrin.club.dto.CreateClubRequest;
-import au.jefrin.club.dto.ClubResponse;
-import au.jefrin.common.exception.ConflictException;
-import au.jefrin.common.exception.DataAccessException;
+import au.jefrin.club.dto.*;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.Member;
 import au.jefrin.club.model.Role;
+import au.jefrin.club.policy.ClubMembershipPolicy;
 import au.jefrin.club.repository.ClubRepository;
 import au.jefrin.club.repository.MemberRepository;
-import au.jefrin.club.policy.ClubMembershipPolicy;
+import au.jefrin.common.exception.ConflictException;
+import au.jefrin.common.exception.DataAccessException;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import au.jefrin.club.dto.ClubMemberResponse;
 
 public class ClubService {
     private final ClubRepository clubRepository;
@@ -49,7 +42,7 @@ public class ClubService {
         foundingMember.setRole(Role.ADMIN);
 
         Club savedClub = clubRepository.createWithFoundingMember(club, foundingMember);
-        
+
         return clubRepository.findClubResponseById(savedClub.getId(), userId)
                 .orElseThrow(() -> new DataAccessException("Created club could not be loaded"));
     }
@@ -85,14 +78,14 @@ public class ClubService {
             throw new IllegalArgumentException("Club ID and valid name are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
-        
+
         Club club = clubRepository.findById(request.getClubId())
                 .orElseThrow(() -> new IllegalArgumentException("Club not found"));
-        
+
         club.setName(request.getName());
         club.setDescription(request.getDescription());
         clubRepository.update(club);
-        
+
         return clubRepository.findClubResponseById(request.getClubId(), requesterUserId)
                 .orElseThrow(() -> new DataAccessException("Updated club could not be loaded"));
     }
@@ -102,7 +95,7 @@ public class ClubService {
             throw new IllegalArgumentException("Club ID, Target User ID, and Role are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
-        
+
         Optional<Member> targetMember = memberRepository.findByUserAndClub(
                 request.getTargetUserId(),
                 request.getClubId()
@@ -110,11 +103,11 @@ public class ClubService {
         if (targetMember.isEmpty()) {
             throw new IllegalArgumentException("Target user is not a member of this club");
         }
-        
+
         if (requesterUserId.equals(request.getTargetUserId())) {
             throw new IllegalArgumentException("Cannot change your own role");
         }
-        
+
         memberRepository.updateRole(request.getTargetUserId(), request.getClubId(), request.getRole());
     }
 
@@ -123,7 +116,7 @@ public class ClubService {
             throw new IllegalArgumentException("Club ID and Target User ID are required");
         }
         checkAdminPermission(request.getClubId(), requesterUserId);
-        
+
         Optional<Member> targetMember = memberRepository.findByUserAndClub(
                 request.getTargetUserId(),
                 request.getClubId()
@@ -135,7 +128,7 @@ public class ClubService {
         if (requesterUserId.equals(request.getTargetUserId())) {
             throw new IllegalArgumentException("Cannot remove yourself using this API");
         }
-        
+
         memberRepository.deleteByUserAndClub(request.getTargetUserId(), request.getClubId());
     }
 
@@ -144,10 +137,42 @@ public class ClubService {
         if (request.getClubId() == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
-        
+
         Optional<Member> membership = memberRepository.findByUserAndClub(requesterUserId, request.getClubId());
         membershipPolicy.requireMember(membership);
-        
+
+        if (membership.get().getRole() == Role.ADMIN) {
+            List<ClubMemberResponse> members = memberRepository.findAllMembersByClubId(request.getClubId());
+            boolean hasOtherMembers = members.stream()
+                    .anyMatch(member -> !requesterUserId.equals(member.getUserId()));
+
+            if (hasOtherMembers) {
+                Long successorUserId = request.getSuccessorUserId();
+                if (successorUserId == null) {
+                    throw new ConflictException(
+                            "ADMIN_SUCCESSOR_REQUIRED",
+                            "Choose another member to become an admin before leaving the club"
+                    );
+                }
+
+                if (requesterUserId.equals(successorUserId)) {
+                    throw new IllegalArgumentException("You cannot choose yourself as the next admin");
+                }
+
+                Optional<Member> successor = memberRepository.findByUserAndClub(successorUserId, request.getClubId());
+                if (successor.isEmpty()) {
+                    throw new IllegalArgumentException("The selected successor is not a member of this club");
+                }
+
+                memberRepository.handOverAdministrationAndRemove(
+                        requesterUserId,
+                        successorUserId,
+                        request.getClubId()
+                );
+                return;
+            }
+        }
+
         memberRepository.deleteByUserAndClub(requesterUserId, request.getClubId());
     }
 
@@ -155,14 +180,14 @@ public class ClubService {
         if (clubId == null) {
             throw new IllegalArgumentException("Club ID is required");
         }
-        
+
         if (clubRepository.findById(clubId).isEmpty()) {
             throw new IllegalArgumentException("Club not found");
         }
-        
+
         Optional<Member> membership = memberRepository.findByUserAndClub(requesterUserId, clubId);
         membershipPolicy.requireMember(membership);
-        
+
         return memberRepository.findAllMembersByClubId(clubId);
     }
 

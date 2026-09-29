@@ -1,10 +1,10 @@
 package au.jefrin.club.controller;
 
 import au.jefrin.club.dto.RemoveMemberRequest;
-import au.jefrin.common.dto.ApiResponse;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.common.config.ServiceFactory;
 import au.jefrin.common.controller.AuthenticatedController;
+import au.jefrin.common.dto.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ public class RemoveMemberController extends AuthenticatedController<RemoveMember
                 request.setTargetUserId(Long.valueOf(parts[1]));
             }
         }
-        
+
         clubService.removeMember(request, userId);
         return ApiResponse.success("Member removed successfully");
     }

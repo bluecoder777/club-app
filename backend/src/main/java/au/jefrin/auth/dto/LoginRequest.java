@@ -19,10 +19,10 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public boolean isValid() {
         return email != null && !email.trim().isEmpty() &&
-               password != null && !password.trim().isEmpty();
+                password != null && !password.trim().isEmpty();
     }
 }
 

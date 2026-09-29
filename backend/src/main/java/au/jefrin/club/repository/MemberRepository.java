@@ -20,5 +20,7 @@ public interface MemberRepository {
 
     void updateRole(Long userId, Long clubId, Role role);
 
+    void handOverAdministrationAndRemove(Long departingUserId, Long successorUserId, Long clubId);
+
     void deleteByUserAndClub(Long userId, Long clubId);
 }

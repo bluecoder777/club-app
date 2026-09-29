@@ -36,8 +36,8 @@ public class ClubEventController extends AuthenticatedController<CreateEventRequ
 
     @Override
     protected ApiResponse<?> processAuthenticatedPost(CreateEventRequest request,
-                                                       HttpServletRequest req,
-                                                       Long userId) {
+                                                      HttpServletRequest req,
+                                                      Long userId) {
         return ApiResponse.success(eventService.createEvent(request, userId));
     }
 

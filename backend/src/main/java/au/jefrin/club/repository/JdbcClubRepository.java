@@ -1,18 +1,21 @@
 package au.jefrin.club.repository;
 
-import au.jefrin.common.config.DatabaseConfig;
-import au.jefrin.common.repository.JdbcOperation;
+import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.model.Club;
 import au.jefrin.club.model.Member;
-
-import java.sql.*;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
-import au.jefrin.club.dto.ClubResponse;
-import au.jefrin.user.dto.UserResponse;
 import au.jefrin.club.model.Role;
+import au.jefrin.common.config.DatabaseConfig;
+import au.jefrin.common.repository.JdbcOperation;
+import au.jefrin.user.dto.UserResponse;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class JdbcClubRepository implements ClubRepository {
 
@@ -66,8 +69,8 @@ public class JdbcClubRepository implements ClubRepository {
     public Optional<Club> findById(Long id) {
         return JdbcOperation.execute("Failed to find club by ID", () -> {
             String query = "SELECT c.id, c.name, c.description, c.date_of_creation, c.created_by, COUNT(m.id) as member_count " +
-                           "FROM clubs c LEFT JOIN member m ON c.id = m.club_id " +
-                           "WHERE c.id = ? GROUP BY c.id";
+                    "FROM clubs c LEFT JOIN member m ON c.id = m.club_id " +
+                    "WHERE c.id = ? GROUP BY c.id";
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -110,10 +113,10 @@ public class JdbcClubRepository implements ClubRepository {
                 .name(rs.getString("created_by_name"))
                 .email(rs.getString("created_by_email"))
                 .build();
-                
+
         String roleStr = rs.getString("current_user_role");
         Role role = roleStr != null ? Role.valueOf(roleStr) : null;
-                
+
         return ClubResponse.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
@@ -130,14 +133,14 @@ public class JdbcClubRepository implements ClubRepository {
     public Optional<ClubResponse> findClubResponseById(Long id, Long currentUserId) {
         return JdbcOperation.execute("Failed to load club response", () -> {
             String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
-                           "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                           "COUNT(m.id) as member_count, " +
-                           "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
-                           "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
-                           "FROM clubs c " +
-                           "JOIN \"user\" cb ON c.created_by = cb.id " +
-                           "LEFT JOIN member m ON c.id = m.club_id " +
-                           "WHERE c.id = ? GROUP BY c.id, cb.id";
+                    "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                    "COUNT(m.id) as member_count, " +
+                    "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
+                    "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
+                    "FROM clubs c " +
+                    "JOIN \"user\" cb ON c.created_by = cb.id " +
+                    "LEFT JOIN member m ON c.id = m.club_id " +
+                    "WHERE c.id = ? GROUP BY c.id, cb.id";
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -158,14 +161,14 @@ public class JdbcClubRepository implements ClubRepository {
     public List<ClubResponse> findAllClubResponses(Long currentUserId) {
         return JdbcOperation.execute("Failed to list clubs", () -> {
             String query = "SELECT c.id, c.name, c.description, c.date_of_creation, " +
-                           "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
-                           "COUNT(m.id) as member_count, " +
-                           "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
-                           "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
-                           "FROM clubs c " +
-                           "JOIN \"user\" cb ON c.created_by = cb.id " +
-                           "LEFT JOIN member m ON c.id = m.club_id " +
-                           "GROUP BY c.id, cb.id ORDER BY c.date_of_creation DESC";
+                    "cb.id as created_by_id, cb.name as created_by_name, cb.email as created_by_email, " +
+                    "COUNT(m.id) as member_count, " +
+                    "COUNT(CASE WHEN m.user_id = ? THEN 1 END) > 0 as is_member, " +
+                    "MAX(CASE WHEN m.user_id = ? THEN m.role::text END) as current_user_role " +
+                    "FROM clubs c " +
+                    "JOIN \"user\" cb ON c.created_by = cb.id " +
+                    "LEFT JOIN member m ON c.id = m.club_id " +
+                    "GROUP BY c.id, cb.id ORDER BY c.date_of_creation DESC";
             List<ClubResponse> responses = new ArrayList<>();
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {

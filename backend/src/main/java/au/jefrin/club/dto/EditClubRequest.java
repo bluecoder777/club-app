@@ -5,14 +5,30 @@ public class EditClubRequest {
     private String name;
     private String description;
 
-    public EditClubRequest() {}
+    public EditClubRequest() {
+    }
 
-    public Long getClubId() { return clubId; }
-    public void setClubId(Long clubId) { this.clubId = clubId; }
+    public Long getClubId() {
+        return clubId;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setClubId(Long clubId) {
+        this.clubId = clubId;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

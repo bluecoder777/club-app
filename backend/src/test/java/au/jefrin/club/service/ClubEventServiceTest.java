@@ -4,11 +4,7 @@ import au.jefrin.club.dto.ClubEventResponse;
 import au.jefrin.club.dto.ClubMemberResponse;
 import au.jefrin.club.dto.ClubResponse;
 import au.jefrin.club.dto.CreateEventRequest;
-import au.jefrin.club.model.Club;
-import au.jefrin.club.model.ClubEvent;
-import au.jefrin.club.model.Member;
-import au.jefrin.club.model.Role;
-import au.jefrin.club.model.TicketReservationResult;
+import au.jefrin.club.model.*;
 import au.jefrin.club.policy.ClubMembershipPolicy;
 import au.jefrin.club.repository.ClubEventRepository;
 import au.jefrin.club.repository.ClubRepository;
@@ -23,10 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClubEventServiceTest {
     private FakeEventRepository eventRepository;
@@ -217,12 +210,37 @@ class ClubEventServiceTest {
             return Optional.of(member);
         }
 
-        @Override public Member save(Member member) { return member; }
-        @Override public boolean existsByUserAndClub(Long userId, Long clubId) { return true; }
-        @Override public boolean hasMembers(Long clubId) { return true; }
-        @Override public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) { return List.of(); }
-        @Override public void updateRole(Long userId, Long clubId, Role role) { }
-        @Override public void deleteByUserAndClub(Long userId, Long clubId) { }
+        @Override
+        public Member save(Member member) {
+            return member;
+        }
+
+        @Override
+        public boolean existsByUserAndClub(Long userId, Long clubId) {
+            return true;
+        }
+
+        @Override
+        public boolean hasMembers(Long clubId) {
+            return true;
+        }
+
+        @Override
+        public List<ClubMemberResponse> findAllMembersByClubId(Long clubId) {
+            return List.of();
+        }
+
+        @Override
+        public void updateRole(Long userId, Long clubId, Role role) {
+        }
+
+        @Override
+        public void handOverAdministrationAndRemove(Long departingUserId, Long successorUserId, Long clubId) {
+        }
+
+        @Override
+        public void deleteByUserAndClub(Long userId, Long clubId) {
+        }
     }
 
     private static class FakeClubRepository implements ClubRepository {
@@ -233,9 +251,23 @@ class ClubEventServiceTest {
             return Optional.of(club);
         }
 
-        @Override public Club createWithFoundingMember(Club club, Member foundingMember) { return club; }
-        @Override public void update(Club club) { }
-        @Override public Optional<ClubResponse> findClubResponseById(Long id, Long userId) { return Optional.empty(); }
-        @Override public List<ClubResponse> findAllClubResponses(Long userId) { return List.of(); }
+        @Override
+        public Club createWithFoundingMember(Club club, Member foundingMember) {
+            return club;
+        }
+
+        @Override
+        public void update(Club club) {
+        }
+
+        @Override
+        public Optional<ClubResponse> findClubResponseById(Long id, Long userId) {
+            return Optional.empty();
+        }
+
+        @Override
+        public List<ClubResponse> findAllClubResponses(Long userId) {
+            return List.of();
+        }
     }
 }

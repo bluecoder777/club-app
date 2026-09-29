@@ -2,15 +2,11 @@ package au.jefrin.common.config;
 
 import au.jefrin.auth.repository.JdbcRefreshTokenRepository;
 import au.jefrin.auth.service.AuthService;
-import au.jefrin.club.repository.JdbcClubRepository;
-import au.jefrin.club.repository.JdbcClubEventRepository;
-import au.jefrin.club.repository.JdbcDashboardPostRepository;
-import au.jefrin.club.repository.JdbcEventTicketRepository;
-import au.jefrin.club.repository.JdbcMemberRepository;
+import au.jefrin.club.policy.ClubMembershipPolicy;
+import au.jefrin.club.repository.*;
 import au.jefrin.club.service.ClubEventService;
 import au.jefrin.club.service.ClubService;
 import au.jefrin.club.service.DashboardService;
-import au.jefrin.club.policy.ClubMembershipPolicy;
 import au.jefrin.user.repository.JdbcUserRepository;
 import au.jefrin.user.repository.UserRepository;
 import au.jefrin.user.service.UserService;

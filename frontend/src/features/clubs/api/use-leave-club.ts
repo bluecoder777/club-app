@@ -8,6 +8,7 @@ import { getMembersQueryOptions } from '@/features/members/api/use-members';
 
 type LeaveClubData = {
   clubId: number;
+  successorUserId?: number;
 };
 
 function leaveClub(data: LeaveClubData) {

@@ -26,15 +26,15 @@ public class EventTicketController extends AuthenticatedController<EventTicketRe
 
     @Override
     protected ApiResponse<?> processAuthenticatedPost(EventTicketRequest request,
-                                                       HttpServletRequest req,
-                                                       Long userId) {
+                                                      HttpServletRequest req,
+                                                      Long userId) {
         return ApiResponse.success(eventService.reserveTicket(request.getEventId(), userId));
     }
 
     @Override
     protected ApiResponse<?> processAuthenticatedDelete(EventTicketRequest request,
-                                                         HttpServletRequest req,
-                                                         Long userId) {
+                                                        HttpServletRequest req,
+                                                        Long userId) {
         return ApiResponse.success(eventService.cancelTicket(request.getEventId(), userId));
     }
 }
