@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 public class JwtUtil {
 
@@ -35,6 +36,7 @@ public class JwtUtil {
     public static String generateRefreshToken(User user) {
         long expirationTime = EnvConfig.getJwtRefreshExpiry();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getEmail())
                 .claim("id", user.getId())
                 .issuedAt(new Date())

@@ -11,9 +11,11 @@ import { useRegister } from '../api/use-register';
 import { registrationSchema, type RegistrationRequest } from '../schema/auth';
 import { getErrorKey, getErrorMessage } from '@/utils/get-error-message';
 import { toast } from '@/components/ui/toast';
+import { useAuth } from './auth-provider';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const form = useForm<RegistrationRequest>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -25,12 +27,13 @@ export const RegisterForm = () => {
 
   const { mutate, isPending } = useRegister({
     mutationConfig: {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        login(response);
         toast.add({
           title: 'Account created successfully!',
           type: 'success',
         });
-        navigate(paths.auth.login.getHref(), { replace: true });
+        navigate(paths.root.getHref(), { replace: true });
       },
       onError: (error) => {
         if (getErrorKey(error) === 'EMAIL_ALREADY_REGISTERED') {
